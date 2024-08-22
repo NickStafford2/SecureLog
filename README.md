@@ -3,13 +3,13 @@
 ## Abhishek
 
 
-
 # ToDo
-- Set up github for both of us.
+- done - Set up github for both of us.
+- done - Build basic hello world application. 
+- install GCC compiler (Nick did on his laptop)
+- Decide on OS. Nick is working on windows atm, but he can reinstall linux on his computers if needed.
 - Connect on Discord
 - Find program requirements.
-- Build basic hello world application. 
-- install GCC compiler
 
 # Ideas
 - Make sure Github is secure and can not be hacked.
