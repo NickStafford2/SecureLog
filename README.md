@@ -9,6 +9,7 @@
 - Connect on Discord
 - Find program requirements.
 - Build basic hello world application. 
+- install GCC compiler
 
 # Ideas
 - Make sure Github is secure and can not be hacked.
