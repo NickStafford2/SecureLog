@@ -23,3 +23,9 @@
 two programs
 - logappend 
 - Logread
+
+# Commands and Compilation
+~~~
+make logAppend
+./logAppend
+~~~
