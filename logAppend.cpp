@@ -27,23 +27,56 @@ void printHelp() {
 	"\t-B file Specifies a batch file of commands. file contains one or more command lines, not including the logappend command itself (just its options); the lines are separated by \n (newlines), but the final newline in a file is optional. These commands should be processed by logappend individually, in order. This allows logappend to add data to the file without forking or re-invoking. Of course, option -B cannot itself appear in one of these command lines. Commands specified in a batch file include the log name. If a single line in a batch file is invalid, print the appropriate error message for that line and continue processing the rest of the batch file. Here is an example (the last one).\n\n";
 }
 
-int main(int argc, char *argv[]) {
+class DataLine {
 
+    private:
+        string id;
+	string timestamp;
+    
+    public: 
+    string toLogFormat() {
+	string output = string("") + 
+	    id + "\t" +
+	    timestamp + "\t" + 
+	    "\n";
+	return output;
+    }
+
+    void setId(int n) {
+	id = to_string(n);
+    }
+
+    void setTimestamp(string n) {
+	long int nLong = stol(n);
+	timestamp = to_string(nLong);
+    }
+};
+
+
+int main(int argc, char *argv[]) {
+    
+    DataLine line; 
+    line.setId(0); // todo: decide if we want this;
+    // 
     // Handle input arguments
     for (int i=1; i< argc; i++) {
-	printf("Argument %i = %s\n", i, argv[i]);
+	// printf("Argument %i = %s\n", i, argv[i]);
 	string userInput = argv[i];
 	if (userInput == "--help") {
 	    printHelp();
 	}
+	if (userInput == "-T") {
+	    line.setTimestamp(argv[i+1]); // todo: could error out
+    	}
     }
     
+    string s = line.toLogFormat();
     std::ofstream outfile;
     outfile.open("log.txt", std::ios_base::app);
 
 
-    outfile << "Data";
-    std::cout << "Hello World\n";
+    outfile << s;
+    cout << "LogAppend Successful\n";
     return 0;
 }
 
