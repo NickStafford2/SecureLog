@@ -91,7 +91,7 @@ Some sort of terminal to access the cli.
 In order to compile the following must be installed and accessible via the PATH.
 - C++
 - Make
-- Gcc
+- Gcc / Clang
 
 ## User Permissions
 Users must have system permissions to read, write, and execute. 
