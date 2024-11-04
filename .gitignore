@@ -1,4 +1,9 @@
-SecureLog
-SecureLog.exe
-LogAppend
-LogAppend.exe
+logAppend.exe
+logAppend.o
+logAppend.out
+logRead.exe
+logRead.o
+logRead.out
+a.out
+.vscode
+
