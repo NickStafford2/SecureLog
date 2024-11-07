@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include  <fstream>
 
 using namespace std;
 
@@ -88,10 +89,42 @@ int main(int argc, char *argv[]) {
 	if (argc == 3 or argc == 9 or argc == 11){
 		std::cout << "successful" << std::endl;
 
+		
 		// all the leftover code goes here
+		
+		// lets try to insert into the file 
+		
+		std::ofstream writeFile("log.txt",std::ios::app);
+
+		while(!writeFile.is_open()){
+			std::cout << "Error opening the file for writing" << std::endl;
+			exit(255);
+		}
+
+		for (int i = 1; i < argc; i++) writeFile << argv[i] << " ";
+		writeFile << "\n";
+		
+		
+		writeFile.close();
+		
+		
+		std::cout << "now this line should run" << std::endl;
+		std::fstream file("log.txt");
+
+		if(!file.is_open()){
+			std::cout << "Error opening the file!" << std::endl;
+			exit(255); 
+		}
+
+		std::string line;
+		while(std::getline(file, line)){
+			std::cout << line << std::endl;
+		}
+
+		file.close();
 
 
-
+	
 
 
 
