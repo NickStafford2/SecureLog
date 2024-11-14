@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include <string>
 #include  <fstream>
+#include <cassert>
+#include <cstring> 
+#include <list>
+#include <sstream> 
+
 
 using namespace std;
 
@@ -53,6 +58,86 @@ using namespace std;
 //     }
 // };
 
+void check_command(int argc, char *argv[]){
+	if (argc == 3){
+		assert(
+			std::strcmp(argv[1], "-B") == 0	
+		);
+		std::cout << "Success" << std::endl;
+	}
+	if (argc == 9){
+		assert(
+			std::strcmp(argv[1], "-T") == 0 &&
+			std::strcmp(argv[3], "-K") == 0 &&
+			(std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0) &&
+			(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0)	
+				);
+		std::cout << "Success8"<< std::endl;
+	}
+	if (argc == 11){
+		assert(
+				std::strcmp(argv[1], "-T") == 0 &&
+				std::strcmp(argv[3], "-K") == 0 &&
+				(std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0) &&
+				(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0) &&
+				std::strcmp(argv[8], "-R") == 0
+    		);
+		std::cout << "Success11"<< std::endl;
+
+	}
+
+}
+
+int get_most_recent_time(){
+	// std::cout << "get most recent time is working" << std::endl;
+	int time = 1;
+	std::fstream file("log.txt");
+
+	if(!file.is_open()){
+		std::cout << "Error opening the file!" << std::endl;
+		exit(255); 
+	}
+	std::string line;
+	while(std::getline(file, line)){
+		// std::cout << line << std::endl;
+		std::list<std::string> wordList;
+        std::istringstream iss(line);
+		std::string word;
+		// Split line into words and store each word in the list
+		while (iss >> word) {
+			wordList.push_back(word);
+		}
+		auto it = wordList.begin();
+        std::advance(it, 1);
+	
+		if ( std::stoi(*it) > time ){
+			time = std::stoi(*it);
+		}
+	}
+	file.close();
+	std::cout << "most recent time is: " << time << std::endl;
+	return time;
+
+}
+
+bool token_validation(const std::string str){
+	for (char c: str){
+		if(!std::isalnum(c)){
+			return false;
+		}
+	}
+	return true;
+
+}
+
+bool name_validation(const std::string name){
+	for(char n: name){
+		if (!std::isalpha(n)){
+			return false;
+		}
+	}
+	return true;
+}
 
 int main(int argc, char *argv[]) {
     
@@ -86,14 +171,76 @@ int main(int argc, char *argv[]) {
 		// rejecting and exiting with an argument telling that the number of inputs is incorrect
 	
 	std::cout << argc<< std::endl;
-	if (argc == 3 or argc == 9 or argc == 11){
+	if (argc == 3 || argc == 9 || argc == 11 || argc == 8 || argc == 10){
 		std::cout << "successful" << std::endl;
-
-		
 		// all the leftover code goes here
+		// check if it is 9, 3, or 11
+		switch (argc)
+		{
+		case 3:{
+			std::cout << "It is a batch file" << std::endl;
+			/* code */
+
+		}
+		case 9:{
+			check_command(argc, argv);
+			int time = (stoi(argv[2]) > get_most_recent_time()) ? std::stoi(argv[2]) : -1;
+			std::cout << time << std::endl;
+			if (time == -1 ){exit(255); std::cout << "The time is not most recent" <<std::endl;}
+			std::string token;
+			if (token_validation(argv[4])){
+				std::cout << "Token is successfully validated" << std::endl;
+				token = argv[4];
+			}else{
+				std::cout << "Invalid: Token" << std::endl;
+				exit(255);
+			}
+			std::string name;
+			if (name_validation(argv[7])){
+				std::cout << "Name is successfully validated" << std::endl;
+				name = argv[7];
+			}else{
+				std::cout << "Invalid: Name" << std::endl;
+			}
+			
+
+
+			std::cout << "It is a single command with no room in it." << std::endl;
+			break;
+
+		}
+			
+		case 11:{
+			check_command(argc, argv);
+			int time = (stoi(argv[2]) > get_most_recent_time() && time >= 1 && time <= 1073741823) ? std::stoi(argv[2]) : -1;
+			std::cout << time << std::endl;
+			if (time == -1 ){exit(255);std::cout << "The time is not most recent" <<std::endl;}
+			std::string token;
+			if (token_validation(argv[4])){
+				std::cout << "Token is successfully validated" << std::endl;
+				token = argv[4];
+			}else{
+				std::cout << "Error: Token" << std::endl;
+				exit(255);
+			}
+			std::string name;
+			if (name_validation(argv[7])){
+				std::cout << "Name is successfully validated" << std::endl;
+				name = argv[7];
+			}else{
+				std::cout << "Invalid: Name" << std::endl;
+			}
+			std::cout << "It is a single command with room in it" << std::endl;
+ 			break;
+
+		}
 		
-		// lets try to insert into the file 
+		default:
+			break;
+		}
 		
+		// lets try to insert into the file
+			// open the file for appending
 		std::ofstream writeFile("log.txt",std::ios::app);
 
 		while(!writeFile.is_open()){
@@ -108,20 +255,20 @@ int main(int argc, char *argv[]) {
 		writeFile.close();
 		
 		
-		std::cout << "now this line should run" << std::endl;
-		std::fstream file("log.txt");
+		// std::cout << "now this line should run" << std::endl;
+		// std::fstream file("log.txt");
 
-		if(!file.is_open()){
-			std::cout << "Error opening the file!" << std::endl;
-			exit(255); 
-		}
+		// if(!file.is_open()){
+		// 	std::cout << "Error opening the file!" << std::endl;
+		// 	exit(255); 
+		// }
 
-		std::string line;
-		while(std::getline(file, line)){
-			std::cout << line << std::endl;
-		}
+		// std::string line;
+		// while(std::getline(file, line)){
+		// 	std::cout << line << std::endl;
+		// }
 
-		file.close();
+		// file.close();
 
 
 	
