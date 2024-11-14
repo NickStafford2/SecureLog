@@ -65,7 +65,7 @@ void check_command(int argc, char *argv[]){
 		);
 		std::cout << "Success" << std::endl;
 	}
-	if (argc == 9){
+	if (argc == 9 || argc == 8){
 		assert(
 			std::strcmp(argv[1], "-T") == 0 &&
 			std::strcmp(argv[3], "-K") == 0 &&
@@ -74,7 +74,7 @@ void check_command(int argc, char *argv[]){
 				);
 		std::cout << "Success8"<< std::endl;
 	}
-	if (argc == 11){
+	if (argc == 11 || argc == 10){
 		assert(
 				std::strcmp(argv[1], "-T") == 0 &&
 				std::strcmp(argv[3], "-K") == 0 &&
@@ -175,14 +175,14 @@ int main(int argc, char *argv[]) {
 		std::cout << "successful" << std::endl;
 		// all the leftover code goes here
 		// check if it is 9, 3, or 11
-		switch (argc)
+		if (argc == 3)
 		{
-		case 3:{
+		
 			std::cout << "It is a batch file" << std::endl;
 			/* code */
 
 		}
-		case 9:{
+		else if(argc == 8 || argc == 9) {
 			check_command(argc, argv);
 			int time = (stoi(argv[2]) > get_most_recent_time()) ? std::stoi(argv[2]) : -1;
 			std::cout << time << std::endl;
@@ -206,11 +206,9 @@ int main(int argc, char *argv[]) {
 
 
 			std::cout << "It is a single command with no room in it." << std::endl;
-			break;
 
-		}
-			
-		case 11:{
+
+		}else if(argc == 10 || argc || 11){
 			check_command(argc, argv);
 			int time = (stoi(argv[2]) > get_most_recent_time() && time >= 1 && time <= 1073741823) ? std::stoi(argv[2]) : -1;
 			std::cout << time << std::endl;
@@ -231,13 +229,10 @@ int main(int argc, char *argv[]) {
 				std::cout << "Invalid: Name" << std::endl;
 			}
 			std::cout << "It is a single command with room in it" << std::endl;
- 			break;
 
 		}
 		
-		default:
-			break;
-		}
+	
 		
 		// lets try to insert into the file
 			// open the file for appending
