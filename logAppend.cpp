@@ -120,23 +120,36 @@ int get_most_recent_time(){
 
 }
 
-bool token_validation(const std::string str){
+int validate_timestamp(int currentTimestamp) {
+    int mostRecentTimestamp = get_most_recent_time();
+    if (currentTimestamp <= mostRecentTimestamp || currentTimestamp < 1 || currentTimestamp > 1073741823) {
+        std::cerr << "Invalid: Timestamp is not valid.\n";
+        exit(255);
+    }
+    return currentTimestamp;
+}
+
+std::string token_validation(const std::string str){
 	for (char c: str){
 		if(!std::isalnum(c)){
-			return false;
+			std::cerr << "Invalid: Token" << std::endl;
+			exit(255);
 		}
 	}
-	return true;
+	std::cout << "Token is successfully validated!" << std::endl;
+	return str;
 
 }
 
-bool name_validation(const std::string name){
+std::string name_validation(const std::string name){
 	for(char n: name){
 		if (!std::isalpha(n)){
-			return false;
+			std::cerr << "Invalid: Name" << std::endl;
+			exit(255);
 		}
 	}
-	return true;
+	std::cout << "Name is successfully validated" << std::endl;
+	return name;
 }
 
 int main(int argc, char *argv[]) {
@@ -184,50 +197,19 @@ int main(int argc, char *argv[]) {
 		}
 		else if(argc == 8 || argc == 9) {
 			check_command(argc, argv);
-			int time = (stoi(argv[2]) > get_most_recent_time()) ? std::stoi(argv[2]) : -1;
-			std::cout << time << std::endl;
-			if (time == -1 ){exit(255); std::cout << "The time is not most recent" <<std::endl;}
-			std::string token;
-			if (token_validation(argv[4])){
-				std::cout << "Token is successfully validated" << std::endl;
-				token = argv[4];
-			}else{
-				std::cout << "Invalid: Token" << std::endl;
-				exit(255);
-			}
-			std::string name;
-			if (name_validation(argv[7])){
-				std::cout << "Name is successfully validated" << std::endl;
-				name = argv[7];
-			}else{
-				std::cout << "Invalid: Name" << std::endl;
-			}
+			int time = validate_timestamp(std::stoi(argv[2]));
+			std::string token = token_validation(argv[4]);
+			std::string name = name_validation(argv[7]);
 			
-
-
 			std::cout << "It is a single command with no room in it." << std::endl;
 
 
 		}else if(argc == 10 || argc || 11){
 			check_command(argc, argv);
-			int time = (stoi(argv[2]) > get_most_recent_time() && time >= 1 && time <= 1073741823) ? std::stoi(argv[2]) : -1;
-			std::cout << time << std::endl;
-			if (time == -1 ){exit(255);std::cout << "The time is not most recent" <<std::endl;}
-			std::string token;
-			if (token_validation(argv[4])){
-				std::cout << "Token is successfully validated" << std::endl;
-				token = argv[4];
-			}else{
-				std::cout << "Error: Token" << std::endl;
-				exit(255);
-			}
-			std::string name;
-			if (name_validation(argv[7])){
-				std::cout << "Name is successfully validated" << std::endl;
-				name = argv[7];
-			}else{
-				std::cout << "Invalid: Name" << std::endl;
-			}
+			int time = validate_timestamp(std::stoi(argv[2]));
+			std::string token = token_validation(argv[4]);
+			std::string name = name_validation(argv[4]);
+			
 			std::cout << "It is a single command with room in it" << std::endl;
 
 		}
