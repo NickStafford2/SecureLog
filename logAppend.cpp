@@ -24,7 +24,7 @@ void check_command(int argc, char *argv[]){
 			(std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0) &&
 			(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0)	
 				);
-		std::cout << "Success8"<< std::endl;
+		std::cout << "Arguments content check successful!"<< std::endl;
 	}
 	if (argc == 11){
 		assert(
@@ -34,7 +34,7 @@ void check_command(int argc, char *argv[]){
 				(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0) &&
 				std::strcmp(argv[8], "-R") == 0
     		);
-		std::cout << "Success!!"<< std::endl;
+		std::cout << "Arguments content check successful!"<< std::endl;
 
 	}
 
@@ -83,23 +83,23 @@ int get_most_recent_time(int argc, std::string filename){
 		}
 	}
 	file.close();
-	std::cout << "most recent time is: " << time << std::endl;
+	// std::cout << "most recent time is: " << time << std::endl;
 	return time;
 
 }
 
-int validate_timestamp(int  argc, int currentTimestamp, std::string filename) {
+void validate_timestamp(int  argc, int currentTimestamp, std::string filename) {
     int mostRecentTimestamp = get_most_recent_time(argc, filename);
-	std::cout << "this line" << std::endl;
+	// std::cout << "this line" << std::endl;
     if (currentTimestamp <= mostRecentTimestamp || currentTimestamp < 1 || currentTimestamp > 1073741823) {
         std::cerr << "Invalid: Timestamp" << std::endl;
         exit(255);
     }
-	std::cout << "Timestamp succesful"<< std::endl;
-    return currentTimestamp;
+	std::cout << "Timestamp validation successful!"<< std::endl;
+    return;
 }
 
-std::string token_validation(const std::string str){
+void token_validation(const std::string str){
 	for (char c: str){
 		if(!std::isalnum(c)){
 			std::cerr << "Invalid: Token" << std::endl;
@@ -107,11 +107,9 @@ std::string token_validation(const std::string str){
 		}
 	}
 	std::cout << "Token is successfully validated!" << std::endl;
-	return str;
-
+	return;
 }
-
-std::string name_validation(const std::string name){
+void name_validation(const std::string name){
 	for(char n: name){
 		if (!std::isalpha(n)){
 			std::cerr << "Invalid: Name" << std::endl;
@@ -119,7 +117,7 @@ std::string name_validation(const std::string name){
 		}
 	}
 	std::cout << "Name is successfully validated" << std::endl;
-	return name;
+	return;
 }
 std::string file_validation(const std::string filename){
 	for(char n: filename){
@@ -132,7 +130,7 @@ std::string file_validation(const std::string filename){
 	return filename;
 }
 bool check_constraints(char *argv[],std::string filename){
-	std::cout << "check_constraint is working" << std::endl;
+	// std::cout << "check_constraint is working" << std::endl;
 	std::vector<std::string> inputList;
 	for(int i = 0; argv[i] != nullptr; ++i){
 		inputList.push_back(argv[i]);
@@ -143,7 +141,6 @@ bool check_constraints(char *argv[],std::string filename){
 
 	if(!file.is_open()){
 		std::cout << "Error opening the file!" << std::endl;
-
 		exit(255); 
 	}
 	std::string line;
@@ -166,14 +163,14 @@ bool check_constraints(char *argv[],std::string filename){
 		// 	std::cout << n << " ";
 		// }
 		// std::cout << std::endl;
-		for(auto n: lastList){
-			std::cout << n << " ";
-		}
-		std::cout << std::endl;
-		std::cout << std::endl;
+		// for(auto n: lastList){
+		// 	std::cout << n << " ";
+		// }
+		// std::cout << std::endl;
+		// std::cout << std::endl;
 	}
 	file.close();
-	std::cout << inputList.size() << std::endl;
+	// std::cout << inputList.size() << std::endl;
 
 	if (lastList.size() == 8 && lastList[4] == "-L" && inputList.size() == 9 && inputList[5] == "-A"){
 		return true;
@@ -183,7 +180,7 @@ bool check_constraints(char *argv[],std::string filename){
 		exit(255);
 	}
 	if (lastList.size() == 0 && inputList.size() == 9 && inputList[5] == "-A"){
-		std::cout << "new incoming" << std::endl;
+		std::cout << "New Employee or Guest coming in!" << std::endl;
 		return true;
 	}
 	if (lastList.size() == 0 && inputList.size() == 9 && inputList[5] == "-L"){
@@ -237,18 +234,19 @@ bool check_constraints(char *argv[],std::string filename){
 }
 
 void executor(int argc, char *argv[]){
+	std::cout << std::endl;
 	std::string filename;
-	std::cout << argc<< std::endl;
+	// std::cout << "Argument length: " << argc<< std::endl;
 	if (argc == 9 || argc == 11){
-		std::cout << "successful" << std::endl;
+		std::cout << "Argument length check successful!" << std::endl;
 		// all the leftover code goes here
 		// check if it is 9, 3, or 11
 		if(argc == 9) {
 			check_command(argc, argv);
 			filename = file_validation(argv[8]) + ".txt";
-			int time = validate_timestamp(argc, std::stoi(argv[2]), filename);
-			std::string token = token_validation(argv[4]);
-			std::string name = name_validation(argv[7]);
+			validate_timestamp(argc, std::stoi(argv[2]), filename);
+			token_validation(argv[4]);
+			name_validation(argv[7]);
 			check_constraints(argv, filename);
 			
 			std::cout << "It is a single command with no room in it." << std::endl;
@@ -256,15 +254,13 @@ void executor(int argc, char *argv[]){
 		}else if(argc == 11){
 			check_command(argc, argv);
 			filename = file_validation(argv[10]) + ".txt"; 
-			int time = validate_timestamp(argc, std::stoi(argv[2]), filename);
-			std::string token = token_validation(argv[4]);
-			std::string name = name_validation(argv[7]);
+			validate_timestamp(argc, std::stoi(argv[2]), filename);
+			token_validation(argv[4]);
+			name_validation(argv[7]);
 			check_constraints(argv, filename);
 			std::cout << "It is a single command with room in it" << std::endl;
 
 		}
-		
-	
 
 		// lets try to insert into the file
 			// open the file for appending
@@ -336,10 +332,13 @@ void process_single_command(const std::string& command) {
     }
 
     // Call the executor function
-	std::cout << "the executor" << std::endl;
+
+	// std::cout << "the executor" << std::endl;
+	std::cout << std::endl;
 	for (int i = 0; i < argc; ++i){
 		std::cout << argv[i] << " ";
 	}
+	
     executor(argc, argv.data());
 }
 
