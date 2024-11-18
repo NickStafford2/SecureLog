@@ -7,6 +7,7 @@
 #include <cstring> 
 #include <list>
 #include <sstream> 
+#include <vector>
 
 
 using namespace std;
@@ -65,7 +66,7 @@ void check_command(int argc, char *argv[]){
 		);
 		std::cout << "Success" << std::endl;
 	}
-	if (argc == 9 || argc == 8){
+	if (argc == 9){
 		assert(
 			std::strcmp(argv[1], "-T") == 0 &&
 			std::strcmp(argv[3], "-K") == 0 &&
@@ -74,7 +75,7 @@ void check_command(int argc, char *argv[]){
 				);
 		std::cout << "Success8"<< std::endl;
 	}
-	if (argc == 11 || argc == 10){
+	if (argc == 11){
 		assert(
 				std::strcmp(argv[1], "-T") == 0 &&
 				std::strcmp(argv[3], "-K") == 0 &&
@@ -82,19 +83,25 @@ void check_command(int argc, char *argv[]){
 				(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0) &&
 				std::strcmp(argv[8], "-R") == 0
     		);
-		std::cout << "Success11"<< std::endl;
+		std::cout << "Success!!"<< std::endl;
 
 	}
 
 }
 
-int get_most_recent_time(){
+int get_most_recent_time(int argc, std::string filename){
 	// std::cout << "get most recent time is working" << std::endl;
 	int time = 1;
-	std::fstream file("log.txt");
+	if (argc == 9){
+		std::ofstream writeFile(filename,std::ios::app);
+		writeFile.close();
+	}
+	
+	std::fstream file(filename);
 
 	if(!file.is_open()){
 		std::cout << "Error opening the file!" << std::endl;
+
 		exit(255); 
 	}
 	std::string line;
@@ -120,12 +127,14 @@ int get_most_recent_time(){
 
 }
 
-int validate_timestamp(int currentTimestamp) {
-    int mostRecentTimestamp = get_most_recent_time();
+int validate_timestamp(int  argc, int currentTimestamp, std::string filename) {
+    int mostRecentTimestamp = get_most_recent_time(argc, filename);
+	std::cout << "this line" << std::endl;
     if (currentTimestamp <= mostRecentTimestamp || currentTimestamp < 1 || currentTimestamp > 1073741823) {
-        std::cerr << "Invalid: Timestamp is not valid.\n";
+        std::cerr << "Invalid: Timestamp" << std::endl;
         exit(255);
     }
+	std::cout << "Timestamp succesful"<< std::endl;
     return currentTimestamp;
 }
 
@@ -151,8 +160,116 @@ std::string name_validation(const std::string name){
 	std::cout << "Name is successfully validated" << std::endl;
 	return name;
 }
+std::string file_validation(const std::string filename){
+	for(char n: filename){
+		if (!std::isalnum(n) && n != '_' && n != '.'){
+			std::cerr << "Invalid: Filename " << std::endl;
+			exit(255);
+		}
+	}
+	std::cout << "Filename is successfully validated" << std::endl;
+	return filename;
+}
+bool check_constraints(char *argv[],std::string filename){
+	std::cout << "check_constraint is working" << std::endl;
+	std::vector<std::string> inputList;
+	for(int i = 0; argv[i] != nullptr; ++i){
+		inputList.push_back(argv[i]);
+	}
 
+	std::vector<std::string> lastList;
+	std::fstream file(filename);
+
+	if(!file.is_open()){
+		std::cout << "Error opening the file!" << std::endl;
+
+		exit(255); 
+	}
+	std::string line;
+	while(std::getline(file, line)){
+
+	
+		std::vector<std::string> wordList;
+        std::istringstream iss(line);
+		std::string word;
+		// Split line into words and store each word in the list
+		while (iss >> word) {
+			wordList.push_back(word);
+		}
+		if (wordList[3] == argv[4] && wordList[5] == argv[6] && wordList[6] == argv[7]){
+			lastList = wordList;
+		}
+		// std::cout << wordList[3] << wordList.size() << std::endl;
+		// std::cout << lastList[3] << lastList.size() << std::endl;
+		// for(auto n: wordList){
+		// 	std::cout << n << " ";
+		// }
+		// std::cout << std::endl;
+		for(auto n: lastList){
+			std::cout << n << " ";
+		}
+		std::cout << std::endl;
+		std::cout << std::endl;
+	}
+	file.close();
+	std::cout << inputList.size() << std::endl;
+
+	if (lastList.size() == 8 && lastList[4] == "-L" && inputList.size() == 9 && inputList[5] == "-A"){
+		return true;
+	}
+	if (lastList.size() == 8 && lastList[4] == "-L"){
+		std::cout << "Not in the Gallery" << std::endl;
+		exit(255);
+	}
+	if (lastList.size() == 0 && inputList.size() == 9 && inputList[5] == "-A"){
+		std::cout << "new incoming" << std::endl;
+		return true;
+	}
+	if (lastList.size() == 0 && inputList.size() == 9 && inputList[5] == "-L"){
+		std::cout << "Invalid" << std::endl;
+		exit(255);
+	}
+	if(lastList.size() == 0 && inputList.size() == 11){
+		std::cout << "Invalid" << std::endl;
+		exit(255);
+	}
+
+	if(lastList.size() == 8 && inputList.size() == 11 && lastList[4] == "-A" && inputList[5] == "-L"){
+		std::cout << "Invalid"<< std::endl;
+		exit(255);
+	}
+	if(lastList.size() == 8 && inputList.size() == 11 && lastList[4] == "-A" && inputList[5] == "-A"){
+		return true;
+	}
+
+	if(lastList.size() == 10 && inputList.size() == 9 && lastList[4] == "-A" && inputList[5]== "-A"){
+		std::cout << "Invalidd"<< std::endl;
+		exit(255);
+	}
+	if(lastList.size() == 10 && inputList.size() == 9 && lastList[4] == "-L" && inputList[5]== "-L"){
+		return true;
+	}
+	
+	if(lastList.size() == 10 && inputList.size() == 11 && lastList[4] == "-A" && inputList[5] == "-L" && lastList[8] == inputList[9]){
+		return true;
+	}
+	if(lastList.size() == 10 && inputList.size() == 11 && lastList[4] == "-A" && inputList[5] == "-L" && lastList[8] != inputList[9]){
+		std::cout << "Invalid, cannot leave from another room" << std::endl;
+		exit(255);
+	}
+	if(lastList.size() == 10 && inputList.size() == 11 && lastList[4] == "-A" && inputList[5] == "-A" && lastList[8] != inputList[9]){
+		std::cout << "Invalid, cannot go to one room to another" << std::endl;
+		exit(255);
+	}
+	if (std::equal(lastList.begin() + 2, lastList.end(), inputList.begin() + 3)){
+		std::cout << "Already in the room" << std::endl;
+		exit(255);
+	}
+	return false;
+
+}
 int main(int argc, char *argv[]) {
+	std::string filename;
     
     // DataLine line; 
     // line.setId(0); // todo: decide if we want this;
@@ -184,7 +301,7 @@ int main(int argc, char *argv[]) {
 		// rejecting and exiting with an argument telling that the number of inputs is incorrect
 	
 	std::cout << argc<< std::endl;
-	if (argc == 3 || argc == 9 || argc == 11 || argc == 8 || argc == 10){
+	if (argc == 3 || argc == 9 || argc == 11){
 		std::cout << "successful" << std::endl;
 		// all the leftover code goes here
 		// check if it is 9, 3, or 11
@@ -195,30 +312,34 @@ int main(int argc, char *argv[]) {
 			/* code */
 
 		}
-		else if(argc == 8 || argc == 9) {
+		else if(argc == 9) {
 			check_command(argc, argv);
-			int time = validate_timestamp(std::stoi(argv[2]));
+			filename = file_validation(argv[8]) + ".txt";
+			int time = validate_timestamp(argc, std::stoi(argv[2]), filename);
+
 			std::string token = token_validation(argv[4]);
 			std::string name = name_validation(argv[7]);
+			check_constraints(argv, filename);
 			
 			std::cout << "It is a single command with no room in it." << std::endl;
 
 
-		}else if(argc == 10 || argc || 11){
+		}else if(argc == 11){
 			check_command(argc, argv);
-			int time = validate_timestamp(std::stoi(argv[2]));
+			filename = file_validation(argv[10]) + ".txt"; 
+			int time = validate_timestamp(argc, std::stoi(argv[2]), filename);
 			std::string token = token_validation(argv[4]);
-			std::string name = name_validation(argv[4]);
-			
+			std::string name = name_validation(argv[7]);
+			check_constraints(argv, filename);
 			std::cout << "It is a single command with room in it" << std::endl;
 
 		}
 		
 	
-		
+
 		// lets try to insert into the file
 			// open the file for appending
-		std::ofstream writeFile("log.txt",std::ios::app);
+		std::ofstream writeFile(filename,std::ios::app);
 
 		while(!writeFile.is_open()){
 			std::cout << "Error opening the file for writing" << std::endl;
@@ -247,16 +368,6 @@ int main(int argc, char *argv[]) {
 
 		// file.close();
 
-
-	
-
-
-
-
-
-
-
-	
 	}else{
 		std::cout << "INVALID!" << std::endl;
 		std::cout << "Program exited with incorrect arguments! Please provide correct number of arguments!" << std::endl;
