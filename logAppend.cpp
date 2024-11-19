@@ -25,6 +25,7 @@ void check_command(int argc, char *argv[]){
 			(std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0)	
 				);
 		std::cout << "Arguments content check successful!"<< std::endl;
+		return;
 	}
 	if (argc == 11){
 		assert(
@@ -35,6 +36,7 @@ void check_command(int argc, char *argv[]){
 				std::strcmp(argv[8], "-R") == 0
     		);
 		std::cout << "Arguments content check successful!"<< std::endl;
+		return;
 
 	}
 
