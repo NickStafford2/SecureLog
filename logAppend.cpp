@@ -9,7 +9,7 @@
 #include <sstream> 
 #include <vector>
 
-
+// check all the options like -T -K (-A or -L)-R (-E or -G)
 void check_command(int argc, char *argv[]){
 	if (argc == 3){
 		assert(
@@ -41,7 +41,8 @@ void check_command(int argc, char *argv[]){
 	}
 
 }
-
+// batch_validation validates if the batch filename is correct
+// if does not check if there is any file or not
 std::string batch_validation(const std::string& str){
 	for (char c: str){
 		if(!std::isalnum(c)){
@@ -53,6 +54,7 @@ std::string batch_validation(const std::string& str){
 	return str;
 }
 
+// get_most_recent_time grabs the most recent time present in that file
 int get_most_recent_time(int argc, const std::string& filename){
 	// std::cout << "get most recent time is working" << std::endl;
 	int time = 1;
@@ -90,6 +92,7 @@ int get_most_recent_time(int argc, const std::string& filename){
 
 }
 
+// validate_timestamp validates the time constraints. 
 void validate_timestamp(const int&  argc, const int& currentTimestamp, const std::string& filename) {
     int mostRecentTimestamp = get_most_recent_time(argc, filename);
 	// std::cout << "this line" << std::endl;
@@ -101,6 +104,7 @@ void validate_timestamp(const int&  argc, const int& currentTimestamp, const std
     return;
 }
 
+// token_validation validates the secret key
 void token_validation(const std::string str){
 	for (char c: str){
 		if(!std::isalnum(c)){
@@ -111,6 +115,8 @@ void token_validation(const std::string str){
 	std::cout << "Token is successfully validated!" << std::endl;
 	return;
 }
+
+// name_validation validates the name of the person
 void name_validation(const std::string name){
 	for(char n: name){
 		if (!std::isalpha(n)){
@@ -121,6 +127,8 @@ void name_validation(const std::string name){
 	std::cout << "Name is successfully validated" << std::endl;
 	return;
 }
+// file_validation validates the name of the file
+// it does not validate if there is any file relates to that name
 std::string file_validation(const std::string filename){
 	for(char n: filename){
 		if (!std::isalnum(n) && n != '_' && n != '.'){
@@ -131,7 +139,7 @@ std::string file_validation(const std::string filename){
 	std::cout << "Filename is successfully validated" << std::endl;
 	return filename;
 }
-
+// room_validation validates the room and is under the integer constraints.
 void room_validation(int room){
 	if (room < 1 || room > 1073741823) {
         std::cerr << "Invalid: Room" << std::endl;
@@ -141,7 +149,7 @@ void room_validation(int room){
     return;
 
 }
-
+// check_constraints checks all of the constraints to of the state of the gallery
 bool check_constraints(char *argv[],std::string filename){
 	// std::cout << "check_constraint is working" << std::endl;
 	std::vector<std::string> inputList;
@@ -173,7 +181,7 @@ bool check_constraints(char *argv[],std::string filename){
 	
 	}
 	file.close();
-	// std::cout << inputList.size() << std::endl;
+	// constraint checking
 
 	if (lastList.size() == 8 && lastList[4] == "-L" && inputList.size() == 9 && inputList[5] == "-A"){
 		return true;
@@ -235,7 +243,7 @@ bool check_constraints(char *argv[],std::string filename){
 	return false;
 
 }
-
+// executor runs the single line command 
 void executor(int argc, char *argv[]){
 	std::cout << std::endl;
 	std::string filename;
@@ -278,24 +286,9 @@ void executor(int argc, char *argv[]){
 		for (int i = 1; i < argc; i++) writeFile << argv[i] << " ";
 		writeFile << "\n";
 		
-		
 		writeFile.close();
 		
 		
-		// std::cout << "now this line should run" << std::endl;
-		// std::fstream file("log.txt");
-
-		// if(!file.is_open()){
-		// 	std::cout << "Error opening the file!" << std::endl;
-		// 	exit(255); 
-		// }
-
-		// std::string line;
-		// while(std::getline(file, line)){
-		// 	std::cout << line << std::endl;
-		// }
-
-		// file.close();
 
 	}else{
 		std::cout << "INVALID!" << std::endl;
@@ -305,7 +298,7 @@ void executor(int argc, char *argv[]){
 	
 
 }
-
+// process_single_command process each line from the batch file
 void process_single_command(const std::string& command) {
     if (command.empty() || command.find("-B") != std::string::npos) {
         std::cerr << "Invalid command: " << command << std::endl;
@@ -330,8 +323,6 @@ void process_single_command(const std::string& command) {
     }
 
     // Call the executor function
-
-	// std::cout << "the executor" << std::endl;
 	std::cout << std::endl;
 	for (int i = 0; i < argc; ++i){
 		std::cout << argv[i] << " ";
@@ -361,6 +352,7 @@ int main(int argc, char *argv[]) {
 		
 
 	}else{
+		// run the sinle line command
 		executor(argc, argv);
 	}
 	

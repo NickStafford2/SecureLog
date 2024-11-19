@@ -1,0 +1,8 @@
+-T 5 -K secret -A -E Fred log1
+-T 6 -K secret -A -E Fred -R 1 log1
+-T 7 -K secret -L -E Fred -R 1 log1
+-T 8 -K secret -A -E Fred -R 2 log1
+-T 9 -K secret -L -E Fred -R 2 log1
+-T 10 -K secret -A -E Fred -R 3 log1
+-T 11 -K secret -L -E Fred -R 3 log1
+-T 12 -K secret -A -E Fred -R 1 log1
