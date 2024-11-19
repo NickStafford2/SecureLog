@@ -28,7 +28,7 @@ void check_command(int argc, char *argv[])
     }
 }
 
-std::string file_validation(const std::string filename)
+std::string file_validation(const std::string& filename)
 {
     for (char n : filename)
     {
@@ -42,7 +42,7 @@ std::string file_validation(const std::string filename)
     return filename;
 }
 
-void token_validation(const std::string str)
+void token_validation(const std::string& str)
 {
     for (char c : str)
     {
@@ -56,7 +56,7 @@ void token_validation(const std::string str)
     return;
 }
 
-void name_validation(const std::string name)
+void name_validation(const std::string& name)
 {
     for (char n : name)
     {
@@ -69,7 +69,6 @@ void name_validation(const std::string name)
     std::cout << "Name is successfully validated" << std::endl;
     return;
 }
-
 
 
 void processArgument(const std::string& filename, const std::string& key) {

@@ -42,7 +42,7 @@ void check_command(int argc, char *argv[]){
 
 }
 
-std::string batch_validation(const std::string str){
+std::string batch_validation(const std::string& str){
 	for (char c: str){
 		if(!std::isalnum(c)){
 			std::cerr << "Invalid: Batch" << std::endl;
@@ -53,7 +53,7 @@ std::string batch_validation(const std::string str){
 	return str;
 }
 
-int get_most_recent_time(int argc, std::string filename){
+int get_most_recent_time(int argc, const std::string& filename){
 	// std::cout << "get most recent time is working" << std::endl;
 	int time = 1;
 	if (argc == 9){
@@ -90,7 +90,7 @@ int get_most_recent_time(int argc, std::string filename){
 
 }
 
-void validate_timestamp(int  argc, int currentTimestamp, std::string filename) {
+void validate_timestamp(const int&  argc, const int& currentTimestamp, const std::string& filename) {
     int mostRecentTimestamp = get_most_recent_time(argc, filename);
 	// std::cout << "this line" << std::endl;
     if (currentTimestamp <= mostRecentTimestamp || currentTimestamp < 1 || currentTimestamp > 1073741823) {
@@ -303,12 +303,6 @@ void executor(int argc, char *argv[]){
 		std::exit(255);
 	}
 	
-	// for (int i = 0; i < argc; i++){
-	// 	std::cout << argv[i] << std::endl;
-
-	// }
-
-
 
 }
 
