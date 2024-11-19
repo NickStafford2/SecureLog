@@ -1,8 +1,10 @@
 logAppend.exe
 logAppend.o
+logAppend
 logAppend.out
 logRead.exe
 logRead.o
+logRead
 logRead.out
 a.out
 .vscode
