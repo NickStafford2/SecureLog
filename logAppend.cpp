@@ -129,6 +129,17 @@ std::string file_validation(const std::string filename){
 	std::cout << "Filename is successfully validated" << std::endl;
 	return filename;
 }
+
+void room_validation(int room){
+	if (room < 1 || room > 1073741823) {
+        std::cerr << "Invalid: Room" << std::endl;
+        exit(255);
+    }
+	std::cout << "Room validation successful!"<< std::endl;
+    return;
+
+}
+
 bool check_constraints(char *argv[],std::string filename){
 	// std::cout << "check_constraint is working" << std::endl;
 	std::vector<std::string> inputList;
@@ -157,17 +168,7 @@ bool check_constraints(char *argv[],std::string filename){
 		if (wordList[3] == argv[4] && wordList[5] == argv[6] && wordList[6] == argv[7]){
 			lastList = wordList;
 		}
-		// std::cout << wordList[3] << wordList.size() << std::endl;
-		// std::cout << lastList[3] << lastList.size() << std::endl;
-		// for(auto n: wordList){
-		// 	std::cout << n << " ";
-		// }
-		// std::cout << std::endl;
-		// for(auto n: lastList){
-		// 	std::cout << n << " ";
-		// }
-		// std::cout << std::endl;
-		// std::cout << std::endl;
+	
 	}
 	file.close();
 	// std::cout << inputList.size() << std::endl;
@@ -257,6 +258,7 @@ void executor(int argc, char *argv[]){
 			validate_timestamp(argc, std::stoi(argv[2]), filename);
 			token_validation(argv[4]);
 			name_validation(argv[7]);
+			room_validation(std::stoi(argv[9]));
 			check_constraints(argv, filename);
 			std::cout << "It is a single command with room in it" << std::endl;
 
