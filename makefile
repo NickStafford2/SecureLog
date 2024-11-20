@@ -5,11 +5,16 @@ CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 # OpenSSL Libraries
 OPENSSL_LIBS = -lssl -lcrypto
 
-# Source Files
-SRCS = include/logAppend.cpp include/logRead.cpp include/crypto.cpp
+# Directories
+SRC_DIR = include
+OBJ_DIR = build
+INCLUDE_DIR = include
 
-# Object Files (from corresponding .cpp files)
-OBJS = logAppend.o logRead.o crypto.o
+# Source Files (with .cpp files located in the 'include' directory)
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+
+# Object Files (create object files in the 'build' directory)
+OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Executable Names
 EXEC_LOGAPPEND = logAppend
@@ -18,19 +23,19 @@ EXEC_LOGREAD = logRead
 # Build Targets
 all: $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
-$(EXEC_LOGAPPEND): logAppend.o crypto.o
+$(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o
 	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
 
-$(EXEC_LOGREAD): logRead.o crypto.o
+$(EXEC_LOGREAD): $(OBJ_DIR)/logRead.o $(OBJ_DIR)/crypto.o
 	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
 
 # Compile Source Files to Object Files
-%.o: include/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean up build files
 clean:
-	rm -f *.o $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+	rm -f $(OBJ_DIR)/*.o $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
 .PHONY: all clean
 
