@@ -1,4 +1,3 @@
-#pragma once
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -9,6 +8,8 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+
+#include "inputValidationLogAppend.h"
 
 class LogAppendArgs {
 public:
@@ -406,37 +407,78 @@ public:
                  "will continue to be processed.\n";
   }
 };
-// class LogAppendArgs {
+
+// // Example usage
+// int main(int argc, char* argv[]) {
+
+//     return 0;
+// }
+// void parseArgs(int argc, char *argv[]) {
+//
+//
+//
+
+// class LogAppendParser {
 // public:
-//   std::string timestampDetails;
-//   int timestamp;
-//   std::string tokenDetails;
-//   std::string token;
-//   std::string employeeDetails;
-//   std::string employeeName;
-//   std::string guestDetails;
-//   std::string arrivalDetails;
-//   bool isArrival;
-//   std::string leavingDetails;
-//   bool isLeaving;
-//   std::string roomDetails;
-//   int roomId;
+//   LogAppendArgs parse(int argc, char *argv[]) {
+//     LogAppendArgs args;
+//     std::vector<std::string> arguments(argv + 1, argv + argc);
 //
-//   std::string batchDetails;
-//   bool isBatch;
-//   std::string batchFile;
+//     for (size_t i = 0; i < arguments.size(); ++i) {
+//       const std::string &arg = arguments[i];
 //
-//   std::string logDetails;
-//   std::string logFile;
+//       if (arg == "-B") {
+//         args.isBatch = true;
+//         if (i + 1 < arguments.size()) {
+//           args.batchFile = arguments[++i];
+//         } else {
+//           throw std::invalid_argument("Missing batch file argument for -B");
+//         }
+//         continue;
+//       }
 //
-//   LogAppendArgs(int argc, char *argv[]);
-//   bool validate();
-//   void file_validation();
-//   void batch_validation();
-//   int get_most_recent_time();
-//   void room_validation();
-//   void name_validation(const std::string name);
-//   void token_validation();
-//   void validate_timestamp();
-//   void printHelp();
+//       if (!args.isBatch) {
+//         if (arg == "-T") {
+//           if (i + 1 < arguments.size()) {
+//             try {
+//               args.timestamp = std::stoi(arguments[++i]);
+//               if (args.timestamp < 0) {
+//                 throw std::invalid_argument("Timestamp must be
+//                 non-negative");
+//               }
+//             } catch (const std::exception &e) {
+//               throw std::invalid_argument("Invalid timestamp format");
+//             }
+//           } else {
+//             throw std::invalid_argument("Missing timestamp value");
+//           }
+//         } else if (arg == "-K") {
+//           if (i + 1 < arguments.size()) {
+//             args.token = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing token value");
+//           }
+//         } else if (arg == "-E") {
+//           args.isEmployee = true;
+//         } else if (arg == "-G") {
+//           args.isGuest = true;
+//         } else if (arg == "-A") {
+//           args.isArrival = true;
+//         } else if (arg == "-L") {
+//           args.isLeaving = true;
+//         } else if (arg == "-R") {
+//           if (i + 1 < arguments.size()) {
+//             args.roomId = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing room ID value");
+//           }
+//         } else {
+//           throw std::invalid_argument("Unknown argument: " + arg);
+//         }
+//       }
+//     }
+//
+//     args.validate();
+//     return args;
+//   }
 // };
