@@ -297,6 +297,18 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
   return output;
 }
 
+void createOrAppendFile(const std::string &filename, const std::string &line) {
+  // Open the file in append mode, create if it doesn't exist
+  std::ofstream file(filename, std::ios::app);
+  if (!file) {
+    std::cerr << "Error opening the file!" << std::endl;
+    return;
+  }
+  file << line << std::endl;
+  file.close();
+  std::cout << "Line successfully written to the file." << std::endl;
+}
+
 void execute(LogAppendArgs args) {}
 
 int main(int argc, char *argv[]) {
@@ -325,25 +337,6 @@ int main(int argc, char *argv[]) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 255;
   }
-}
-void batch_validation() {
-
-  std::string batchFile = "test";
-  std::fstream file(batchFile);
-  if (!file.is_open()) {
-    std::cout << "Error opening the batch file!" << std::endl;
-    exit(255);
-  }
-  std::string line;
-  int count = 0;
-  while (std::getline(file, line)) {
-    if (line.empty() || line.find("-B") != std::string::npos) {
-      std::cerr << "Invalid command on line: " << count << ") " << line
-                << std::endl;
-    }
-    count++;
-  }
-  file.close();
 }
 
 // file_validation validates the name of the file
