@@ -1,17 +1,4 @@
-// // #include "crypto.h"
-// #include <string>
-//
-// #include "crypto.h"
-// #include "inputValidation.h"
-//
-// int main() {
-//   bool x = fileExistsAndIsReadable("test");
-//   // bool y = fileExistsAndIsReadable2("test");
-//   CryptoUtils crypto;
-//   crypto.print(); // Test that we can use the class
-//   return 0;
-// }
-//
+// logAppend.cpp
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -22,47 +9,9 @@
 #include <string>
 #include <vector>
 
-#include "crypto.h"
 #include "inputValidation.h"
 #include "inputValidationLogAppend.h"
 #include "state.h"
-
-// get_most_recent_time grabs the most recent time present in that file
-int get_most_recent_time(std::string logFile) {
-  // std::cout << "get most recent time is working" << std::endl;
-  int time = 1;
-  // if (argc == 9) {
-  //   std::ofstream writeFile(filename, std::ios::app);
-  //   writeFile.close();
-  // }
-
-  std::fstream file(logFile);
-  if (!file.is_open()) {
-    std::cout << "Error opening the file!" << std::endl;
-    exit(255);
-  }
-
-  std::string line;
-  while (std::getline(file, line)) {
-    // std::cout << line << std::endl;
-    std::list<std::string> wordList;
-    std::istringstream iss(line);
-    std::string word;
-    // Split line into words and store each word in the list
-    while (iss >> word) {
-      wordList.push_back(word);
-    }
-    auto it = wordList.begin();
-    std::advance(it, 1);
-
-    if (std::stoi(*it) > time) {
-      time = std::stoi(*it);
-    }
-  }
-  file.close();
-  // std::cout << "most recent time is: " << time << std::endl;
-  return time;
-}
 
 // Tokenizer function to split the string into individual arguments
 std::vector<std::string> tokenize(const std::string &line) {
@@ -164,10 +113,11 @@ void execute(LogAppendArgs args) {
   event.printEvent();
   Gallery gallery;
   gallery.move(event);
-  gallery.saveToFile("gallery_data.txt");
+  gallery.saveToFile("gallery_data.txt", args.token);
   // Load the gallery data back from the file
   try {
-    Gallery loadedGallery = Gallery::loadFromFile("gallery_data.txt");
+    Gallery loadedGallery =
+        Gallery::loadFromFile("gallery_data.txt", args.token);
     std::cout << "Success: " << std::endl;
     loadedGallery.printGallery();
   } catch (const std::exception &e) {
@@ -176,8 +126,6 @@ void execute(LogAppendArgs args) {
 }
 
 int main(int argc, char *argv[]) {
-  CryptoUtils crypto;
-  crypto.print();
   try {
     LogAppendArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
@@ -192,7 +140,7 @@ int main(int argc, char *argv[]) {
       toExecute.push_back(args);
     }
 
-    for (int i = 0; i < toExecute.size(); ++i) {
+    for (size_t i = 0; i < toExecute.size(); ++i) {
       LogAppendArgs command = toExecute[i];
       try {
         execute(command);

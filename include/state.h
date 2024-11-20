@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "crypto.h"
 #include "utils.h"
 // Enum to represent the participant type (Employee or Guest)
 
@@ -221,7 +222,6 @@ public:
       std::stringstream empStream(line);
       std::string name;
       int room;
-      char comma;
 
       std::getline(empStream, name, ',');
       empStream >> room;
@@ -236,7 +236,6 @@ public:
       std::stringstream guestStream(line);
       std::string name;
       int room;
-      char comma;
 
       std::getline(guestStream, name, ',');
       guestStream >> room;
@@ -254,10 +253,13 @@ public:
   }
 
   // Function to save to a file
-  void saveToFile(const std::string &filename) const {
+  void saveToFile(const std::string &filename, const std::string &key) const {
+
     std::ofstream outFile(filename);
     if (outFile) {
-      outFile << serialize();
+      std::string message = serialize();
+      std::string encrypted = CryptoUtils::encrypt(message, key);
+      outFile << encrypted;
       outFile.close();
       std::cout << "Gallery data saved to " << filename << std::endl;
     } else {
@@ -266,13 +268,16 @@ public:
   }
 
   // Function to load from a file
-  static Gallery loadFromFile(const std::string &filename) {
+  static Gallery loadFromFile(const std::string &filename,
+                              const std::string &key) {
     std::ifstream inFile(filename);
     if (inFile) {
       std::stringstream buffer;
       buffer << inFile.rdbuf();
       inFile.close();
-      return deserialize(buffer.str());
+      std::string encrypted = buffer.str();
+      std::string decrypted = CryptoUtils::decrypt(encrypted, key);
+      return deserialize(decrypted);
     } else {
       throw std::ios_base::failure("Failed to open file for reading.");
     }

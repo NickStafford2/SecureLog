@@ -18,7 +18,6 @@
 
 class CryptoUtils {
 public:
-  void print();
   // Encrypts the given plaintext using the provided key
   // Returns empty string on error
   static std::string encrypt(const std::string &plaintext,
