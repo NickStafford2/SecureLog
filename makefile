@@ -1,4 +1,4 @@
-
+# Makefile
 # Compiler and Flags
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
@@ -24,7 +24,7 @@ EXEC_LOGREAD = logRead
 # Build Targets
 all: $(OBJ_DIR) $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
-$(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o
+$(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o
 	@echo "Compiling $(EXEC_LOGAPPEND)..."
 	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
 	@echo "$(EXEC_LOGAPPEND) compiled successfully!"

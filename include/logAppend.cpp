@@ -8,6 +8,7 @@
 #include <list>
 #include <sstream> 
 #include <vector>
+#include "inputValidation.h"
 
 // check all the options like -T -K (-A or -L)-R (-E or -G)
 void check_command(int argc, char *argv[]){
@@ -357,12 +358,15 @@ void printHelp() {
     std::cout << "  - The -T option is optional, and if used, it will provide the time spent in the gallery by the person(s) specified.\n";
 }
 
-int main() {
-    printHelp();
-    return 0;
-}
-
 int main(int argc, char *argv[]) {
+
+  std::string testStr = "12345";
+  if (isNumeric(testStr)) {
+      std::cout << testStr << " is a valid number.\n";
+  } else {
+      std::cout << testStr << " is not a valid number.\n";
+  }
+  return 0;
 	if (argc == 3){
 		// run the batch command
 		check_command(argc, argv);
