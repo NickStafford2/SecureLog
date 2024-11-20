@@ -1,0 +1,48 @@
+/**
+ * @file crypto.h
+ * @brief Secure encryption/decryption using OpenSSL
+ */
+
+#pragma once
+
+#include <string>
+#include <vector>
+#include <memory>
+
+class Crypto {
+public:
+    Crypto();
+    ~Crypto();
+    
+    // Prevent copying
+    Crypto(const Crypto&) = delete;
+    Crypto& operator=(const Crypto&) = delete;
+
+    struct CryptoResult {
+        std::vector<unsigned char> data;  
+        std::vector<unsigned char> tag;   
+        std::vector<unsigned char> salt;  
+    };
+
+    std::vector<unsigned char> generateKey(const std::string& password = "");
+    
+    CryptoResult encrypt(const std::string& plainText,
+                        const std::vector<unsigned char>& key,
+                        const std::string& additionalData = "");
+
+    std::string decrypt(const CryptoResult& cryptoResult,
+                       const std::vector<unsigned char>& key,
+                       const std::string& additionalData = "");
+
+private:
+    static constexpr size_t KEY_LENGTH = 32;         
+    static constexpr size_t IV_LENGTH = 12;          
+    static constexpr size_t SALT_LENGTH = 32;        
+    static constexpr size_t TAG_LENGTH = 16;         
+    static constexpr size_t ITERATION_COUNT = 10000; 
+
+    std::vector<unsigned char> generateSalt();
+    std::vector<unsigned char> deriveKey(const std::string& password,
+                                       const std::vector<unsigned char>& salt);
+    void handleOpenSSLError(const char* location);
+};

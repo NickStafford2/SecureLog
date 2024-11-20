@@ -1,6 +1,11 @@
 # Compiler and Flags
 CXX := g++
 CXXFLAGS := -Wall -Wextra -std=c++11
+
+# Add OpenSSL flags
+CXXFLAGS += -I/usr/include/openssl
+LDFLAGS += -lcrypto
+
 INCLUDES := -Iinclude
 
 # Directories

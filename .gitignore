@@ -4,6 +4,7 @@ logRead
 a.out
 .vscode
 test.cpp
+bin/
 
 # Prerequisites
 *.d
