@@ -119,8 +119,9 @@ public:
                    "<token> (-E | -G) (-A | "
                    "-L) [-R <room>]\n";
       std::cerr << "       logappend -B <batch-file>\n";
+      throw std::invalid_argument("");
     }
-    std::cout << "its working" << std::endl;
+
     std::vector<std::string> args;
     for (int i = 1; i < argc; ++i) {
       args.push_back(argv[i]);
@@ -192,6 +193,7 @@ public:
       }
       this->validate();
     }
+    this->print();
   }
 
   // Validate that the arguments are consistent
@@ -223,7 +225,6 @@ public:
     }
 
     validate_timestamp();
-    room_validation();
     return true;
   }
 
@@ -309,7 +310,7 @@ public:
 
   // room_validation validates the room and is under the integer constraints.
   void room_validation() {
-    if (roomId < 1 || roomId > 1073741823) {
+    if (roomId < 0 || roomId >= 1073741823) {
       std::cerr << "Invalid: Room" << std::endl;
       exit(255);
     }
@@ -350,61 +351,8 @@ public:
     }
   }
 
-  void printHelp() {
-    std::cout << "Usage: logappend [OPTIONS] <log>\n\n";
-
-    std::cout << "Description:\n";
-    std::cout << "logappend is a tool for appending events to a log. It is "
-                 "used to record "
-                 "the activities of employees and guests in a gallery, "
-                 "including their "
-                 "arrivals, departures, and movements between rooms. You can "
-                 "specify a "
-                 "timestamp and authentication token for each event, and the "
-                 "tool will either "
-                 "create a new log or append to an existing one. The options "
-                 "below provide "
-                 "various ways to filter and customize the log entries.\n\n";
-
-    std::cout << "Options:\n";
-    std::cout
-        << "  -T <timestamp>      Time the event is recorded, formatted as the "
-           "number of seconds since the gallery opened. Non-negative integer, "
-           "increasing order is required.\n";
-    std::cout << "  -K <token>          Token used to authenticate log access. "
-                 "Alphanumeric.\n";
-    std::cout << "  -E <employee-name>   Employee name. Alphabetic characters "
-                 "only, case-sensitive.\n";
-    std::cout << "  -G <guest-name>      Guest name. Alphabetic characters "
-                 "only, case-sensitive.\n";
-    std::cout << "  -A                   Indicates an arrival event. Can be "
-                 "used with -E, -G, and -R.\n";
-    std::cout << "  -L                   Indicates a departure event. Can be "
-                 "used with -E, -G, and -R.\n";
-    std::cout << "  -R <room-id>         Room ID for the event. Non-negative "
-                 "integer, no spaces.\n";
-    std::cout << "  <log>                The name of the log file used for "
-                 "recording events. "
-                 "Alphanumeric, underscores, and periods allowed.\n";
-    std::cout << "  -B <file>            Specifies a batch file containing "
-                 "multiple commands.\n\n";
-
-    std::cout << "Examples:\n";
-    std::cout << "  logappend -T <timestamp> -K <token> (-E <name> | -G "
-                 "<name>) (-A | -L) [-R <room-id>] <log>\n";
-    std::cout << "  logappend -B <batch-file>\n\n";
-
-    std::cout << "Note:\n";
-    std::cout << "  - When using the -R option, the employee or guest must "
-                 "enter the gallery first before entering a room.\n";
-    std::cout << "  - The -T timestamp must always be greater than the "
-                 "previous timestamp to avoid inconsistency.\n";
-    std::cout << "  - If the log cannot be created or an invalid name is used, "
-                 "the command will print \"invalid\" and return 255.\n";
-    std::cout << "  - If a batch file is specified, each command in the file "
-                 "will be processed in order. If one command fails, the rest "
-                 "will continue to be processed.\n";
-  }
+  void printHelp() const;
+  void print() const;
 };
 // class LogAppendArgs {
 // public:
