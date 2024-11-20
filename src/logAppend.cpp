@@ -297,17 +297,29 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
   return output;
 }
 
+void execute(LogAppendArgs args) {}
+
 int main(int argc, char *argv[]) {
   try {
     LogAppendArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
     args.print();
 
+    std::vector<LogAppendArgs> toExecute = {args};
     if (args.isBatch) {
-      std::vector<LogAppendArgs> batches = readBatches(args);
+      auto batch = readBatches(args);
       std::cout << "All Batch arguments read. Executing batch now. ";
+      toExecute.insert(toExecute.end(), batch.begin(), batch.end());
     }
 
+    for (int i = 0; i < toExecute.size(); ++i) {
+      LogAppendArgs command = toExecute[i];
+      try {
+        execute(command);
+      } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+      }
+    }
     return 1;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
