@@ -1,3 +1,5 @@
+#include <unordered_map>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -73,7 +75,8 @@ void name_validation(const std::string& name)
     return;
 }
 
-// processArgument prints all the names of employees and guests went to the gallery and each people that entered in a particular room
+// processArgument prints all the names of employees and guests that went to the gallery 
+// as well as each person that entered in a particular room
 void processArgument(const std::string& filename, const std::string& key) {
     std::vector<std::string> namesPeople; // List of unique people
     std::unordered_map<int, std::vector<std::string> > roomAssignments; // room -> people mapping

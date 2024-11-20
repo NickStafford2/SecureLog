@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
-#include  <fstream>
+#include <fstream>
 #include <cassert>
 #include <cstring> 
 #include <list>
@@ -40,6 +40,7 @@ void check_command(int argc, char *argv[]){
 
 	}
 }
+
 
 // batch_validation validates if the batch filename is correct
 // if does not check if there is any file or not

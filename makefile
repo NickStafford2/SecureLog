@@ -1,28 +1,36 @@
-# the compiler to use
-CC      = g++
+# Compiler
+CXX = g++
+CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 
-# compiler flags:
-#  -g    adds debugging information to the executable file
-#  -Wall turns on most, but not all, compiler warnings
-CCFLAGS = -g -Wall
-RM      = rm -rf
+# OpenSSL Libraries
+OPENSSL_LIBS = -lssl -lcrypto
 
-# default: all
+# Source Files
+SRCS = include/logAppend.cpp include/logRead.cpp include/crypto.cpp
 
-# all: main
+# Object Files (from corresponding .cpp files)
+OBJS = logAppend.o logRead.o crypto.o
 
-#main: main.cpp
-#	$(CC) $(CCFLAGS) -o main main.cpp
-#	@echo "Build complete"
-#clean:
-#	$(RM) *.dSYM *.out main
-#	@echo "Clean complete"
+# Executable Names
+EXEC_LOGAPPEND = logAppend
+EXEC_LOGREAD = logRead
 
+# Build Targets
+all: $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
-logAppend: logAppend.cpp
-	$(CC) $(CCFLAGS) -o logAppend logAppend.cpp -std=c++11
-	@echo "LogAppend build complete."
+$(EXEC_LOGAPPEND): logAppend.o crypto.o
+	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
 
-logRead: logRead.cpp
-	$(CC) $(CCFLAGS) -o logRead logRead.cpp -std=c++11
-	@echo "logrRead build complete."
+$(EXEC_LOGREAD): logRead.o crypto.o
+	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
+
+# Compile Source Files to Object Files
+%.o: include/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean up build files
+clean:
+	rm -f *.o $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+
+.PHONY: all clean
+
