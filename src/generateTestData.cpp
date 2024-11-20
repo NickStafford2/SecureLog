@@ -1,12 +1,15 @@
 // generateTestData.cpp
-
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <sstream>
 #include <string>
 #include <vector>
+
+bool fileExists(const std::string &fileName) {
+  std::ifstream file(fileName);
+  return file.good();
+}
 
 std::string generateTestData(int index) {
   std::stringstream ss;
@@ -61,7 +64,7 @@ std::string getUniqueBatchFileName() {
   std::string fileName = "batch" + std::to_string(batchNumber) + ".txt";
 
   // Check if file already exists
-  while (std::filesystem::exists(fileName)) {
+  while (fileExists(fileName)) {
     batchNumber++;
     fileName = "batch" + std::to_string(batchNumber) + ".txt";
   }
