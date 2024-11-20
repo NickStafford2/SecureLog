@@ -248,7 +248,6 @@ public:
   // file_validation validates the name of the file
   // it does not validate if there is any file relates to that name
   void file_validation() {
-    std::cout << "filkdl;akfka;" << std::endl;
     if (logFile.empty()) {
       throw std::invalid_argument("Invalid Filename");
     }

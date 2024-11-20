@@ -218,7 +218,6 @@ int get_most_recent_time(std::string logFile) {
   std::fstream file(logFile);
   if (!file.is_open()) {
     std::cout << "Error opening the file!" << std::endl;
-
     exit(255);
   }
 
@@ -248,7 +247,7 @@ int get_most_recent_time(std::string logFile) {
 std::vector<std::string> tokenize(const std::string &line) {
   std::vector<std::string> tokens;
   std::stringstream ss(line);
-  ss << "logAppend " << line;
+  ss << "logAppend " << line; // logAppend command must be added to the start
   std::string token;
 
   // Split by spaces
@@ -270,16 +269,19 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
     // Create an array of char* for argv
     std::vector<char *> argv(argc);
 
-    // Convert tokens to char* and assign them to argv
     for (int i = 0; i < argc; ++i) {
       argv[i] = &tokens[i][0]; // Convert string to char*
     }
+    try {
+      LogAppendArgs newArgs(argc, argv.data());
 
-    // Now you can use the arguments to construct LogAppendArgs
-    LogAppendArgs newArgs(argc, argv.data());
+      // Push the newArgs to the output vector
+      output.push_back(newArgs);
 
-    // Push the newArgs to the output vector
-    output.push_back(newArgs);
+    } catch (const std::exception &e) {
+      std::cerr << "Skipping bad command in batch: " << e.what() << std::endl;
+    }
+    return output;
   }
 
   file.close();
@@ -294,6 +296,7 @@ int main(int argc, char *argv[]) {
 
     if (args.isBatch) {
       std::vector<LogAppendArgs> batches = readBatches(args);
+      std::cout << "All Batch arguments read. Executing batch now. ";
     }
 
     return 1;
