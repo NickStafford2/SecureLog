@@ -316,6 +316,7 @@ public:
     }
     // std::cout << "Room validation successful!" << std::endl;
   }
+
   void name_validation(const std::string name) {
     for (char n : name) {
       if (!std::isalpha(n)) {
@@ -406,17 +407,6 @@ public:
                  "will continue to be processed.\n";
   }
 };
-
-int parseArgs(int argc, char *argv[]) {
-  try {
-    LogAppendArgs args(argc, argv);
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
-  }
-
-  return 1;
-}
 
 // // Example usage
 // int main(int argc, char* argv[]) {

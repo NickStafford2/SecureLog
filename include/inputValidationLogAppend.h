@@ -11,10 +11,6 @@
 #include <string>
 #include <vector>
 
-void printHelp();
-void check_command(int argc, char *argv[]);
-int parseArgs(int argc, char *argv[]);
-
 class LogAppendArgs {
 public:
   std::string timestampDetails;
