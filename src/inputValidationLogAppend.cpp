@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "inputValidationLogAppend.h"
+// #include "utils.h"
 
 void LogAppendArgs::printHelp() const {
   std::cout << "Usage: logappend [OPTIONS] <log>\n\n";
@@ -107,9 +108,17 @@ void LogAppendArgs::print() const {
   std::cout << "  logFile: " << (logFile.empty() ? "N/A" : logFile)
             << std::endl;
 
+  // Print logFile
+  // std::cout << "  ParticipantType: " <<
+  // participantTypeToString(participantType)
+  //           << std::endl;
+
+  // Print name
+  std::cout << "  name: " << name << std::endl;
+
   std::cout << "}" << std::endl;
 }
-// // Example usage
+
 // int main(int argc, char* argv[]) {
 
 //     return 0;

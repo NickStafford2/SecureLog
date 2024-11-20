@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "utils.h"
 // Enum to represent the participant type (Employee or Guest)
-enum class ParticipantType { EMPLOYEE, GUEST };
 
 class Event {
 public:
@@ -47,6 +47,7 @@ private:
 public:
   static const int GALLERY_ID = -1;
   static const int UNKNOWN = -2;
+  static const int ERROR = -3;
   Gallery() = default;
 
   int getEmployeeRoom(const std::string &employee) const {
@@ -89,6 +90,14 @@ public:
                                " is not in the from_location.");
     }
 
+    if (event.to_location != Gallery::GALLERY_ID &&
+        event.to_location != Gallery::UNKNOWN &&
+        currentRoom != Gallery::GALLERY_ID) {
+
+      throw std::runtime_error("No employee or guest should enter a room "
+                               "without first entering the gallery.");
+    }
+
     // Add the event to the list
     events.push_back(event);
 
@@ -98,6 +107,7 @@ public:
     } else if (event.participantType == ParticipantType::GUEST) {
       guests[event.person] = event.to_location;
     }
+    std::cout << "Move Successfull" << std::endl;
   }
 
   // Print the employees list

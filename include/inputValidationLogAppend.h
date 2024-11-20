@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "utils.h"
 class LogAppendArgs {
 public:
   std::string timestampDetails =
@@ -88,6 +89,7 @@ public:
       "An employee or guest may only occupy one room at a time. If a room ID "
       "is not specified, the event is for the entire art gallery.";
   int roomId = -1;
+  bool roomDeclared = false;
 
   std::string batchDetails =
       "-B file Specifies a batch file of commands. file contains one or more "
@@ -114,9 +116,13 @@ public:
       "logappend should print “invalid” and return 255.";
   std::string logFile = "";
 
-  LogAppendArgs(int argc, char *argv[]) {
-    std::cout << "argc: " << argc << std::endl;
+  ParticipantType
+      participantType; // Whether the event is for an employee or guest
+  std::string name = "";
 
+  LogAppendArgs(int argc, char *argv[]) {
+
+    std::cout << "\nCreateing LogAppendArgs from: " << argc << std::endl;
     // Print all arguments in argv
     std::cout << "Arguments:" << std::endl;
     for (int i = 0; i < argc; ++i) {
@@ -198,6 +204,7 @@ public:
         } else if (arg == "-R") {
           if (i + 1 < args.size()) {
             this->roomId = std::stoi(args[++i]);
+            this->roomDeclared = true;
             room_validation();
           } else {
             throw std::invalid_argument("Missing room ID value");
@@ -210,12 +217,15 @@ public:
           throw std::invalid_argument("Unknown argument: " + arg);
         }
       }
-      this->validate();
+      this->validateNonBatch();
     }
+
+    std::cout << "Successfully Created LogAppendArgs" << std::endl;
+    this->print();
   }
 
   // Validate that the arguments are consistent
-  bool validate() {
+  void validateNonBatch() {
     // Basic validation rules
     if (timestamp < 0 && !isBatch) {
       throw std::invalid_argument(
@@ -242,7 +252,16 @@ public:
       file_validation();
     }
 
-    return true;
+    // std::cout << "sssss" << guestName << std::endl;
+    // std::cout << "iiiii" << employeeName << std::endl;
+    if (guestName.empty()) {
+      this->participantType = ParticipantType::EMPLOYEE;
+      this->name = employeeName;
+    } else {
+      this->participantType = ParticipantType::GUEST;
+      this->name = guestName;
+    }
+    // std::cout << "kkkk" << name << std::endl;
   }
 
   // file_validation validates the name of the file
