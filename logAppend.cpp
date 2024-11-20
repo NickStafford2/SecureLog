@@ -39,8 +39,8 @@ void check_command(int argc, char *argv[]){
 		return;
 
 	}
-
 }
+
 // batch_validation validates if the batch filename is correct
 // if does not check if there is any file or not
 std::string batch_validation(const std::string& str){
@@ -285,14 +285,10 @@ void executor(int argc, char *argv[]){
 
 		for (int i = 1; i < argc; i++) writeFile << argv[i] << " ";
 		writeFile << "\n";
-		
 		writeFile.close();
-		
-		
-
 	}else{
 		std::cout << "INVALID!" << std::endl;
-		std::cout << "Program exited with incorrect arguments! Please provide correct number of arguments!" << std::endl;
+		std::cout << "Program exited due to invalid arguments. Please provide correct number of arguments." << std::endl;
 		std::exit(255);
 	}
 	
@@ -327,8 +323,7 @@ void process_single_command(const std::string& command) {
 	for (int i = 0; i < argc; ++i){
 		std::cout << argv[i] << " ";
 	}
-	
-    executor(argc, argv.data());
+  executor(argc, argv.data());
 }
 
 
