@@ -1,3 +1,4 @@
+# Makefile
 
 # Compiler and Flags
 CXX := clang++
@@ -26,7 +27,6 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Shared object files for both executables
 SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
-
 
 # Specify the executables you want to build
 EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead
@@ -58,8 +58,19 @@ clean:
 	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 	@echo "Clean complete"
 
+# New rule to generate batch data
+genBatch: $(SRC_DIR)/generateTestData.cpp
+	@echo "Compiling and generating test data..."
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $(BIN_DIR)/generateTestData
+	@$(BIN_DIR)/generateTestData
+	@echo "Test data generated successfully."
+
+# Rule for the testData target that runs the genBatch rule
+testData: genBatch
+	@echo "Test data generation complete."
+
 # Declare phony targets
-.PHONY: all clean
+.PHONY: all clean genBatch testData
 
 # Include dependencies (generated automatically from source files)
 -include $(OBJS:.o=.d)
