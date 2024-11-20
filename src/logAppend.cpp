@@ -11,8 +11,8 @@
 #include "inputValidation.h"
 #include "inputValidationLogAppend.h"
 
-// // check_constraints checks all of the constraints to of the state of the
-// // gallery
+// check_constraints checks all of the constraints to of the state of the
+// gallery
 // bool check_constraints(char *argv[], std::string filename) {
 //   // std::cout << "check_constraint is working" << std::endl;
 //   std::vector<std::string> inputList;
@@ -244,16 +244,82 @@ int get_most_recent_time(std::string logFile) {
   return time;
 }
 
+// Tokenizer function to split the string into individual arguments
+std::vector<std::string> tokenize(const std::string &line) {
+  std::vector<std::string> tokens;
+  std::stringstream ss(line);
+  ss << "logAppend " << line;
+  std::string token;
+
+  // Split by spaces
+  while (ss >> token) {
+    tokens.push_back(token);
+  }
+  return tokens;
+}
+
+std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
+  std::vector<LogAppendArgs> output;
+  std::fstream file(args.batchFile);
+  std::string line;
+
+  while (std::getline(file, line)) {
+    std::vector<std::string> tokens = tokenize(line);
+    int argc = tokens.size();
+
+    // Create an array of char* for argv
+    std::vector<char *> argv(argc);
+
+    // Convert tokens to char* and assign them to argv
+    for (int i = 0; i < argc; ++i) {
+      argv[i] = &tokens[i][0]; // Convert string to char*
+    }
+
+    // Now you can use the arguments to construct LogAppendArgs
+    LogAppendArgs newArgs(argc, argv.data());
+
+    // Push the newArgs to the output vector
+    output.push_back(newArgs);
+  }
+
+  file.close();
+  return output;
+}
+
 int main(int argc, char *argv[]) {
   try {
     LogAppendArgs args(argc, argv);
+    std::cout << "First round of validation complete" << std::endl;
+    args.print();
+
+    if (args.isBatch) {
+      std::vector<LogAppendArgs> batches = readBatches(args);
+    }
+
+    return 1;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 255;
   }
-  std::cout << "First round of validation complete" << std::endl;
+}
+void batch_validation() {
 
-  return 1;
+  std::string batchFile = "test";
+  std::fstream file(batchFile);
+  if (!file.is_open()) {
+    std::cout << "Error opening the batch file!" << std::endl;
+    exit(255);
+  }
+  std::string line;
+  int count = 0;
+  while (std::getline(file, line)) {
+    if (line.empty() || line.find("-B") != std::string::npos) {
+      std::cerr << "Invalid command on line: " << count << ") " << line
+                << std::endl;
+    }
+    count++;
+  }
+  file.close();
 }
 
 // file_validation validates the name of the file

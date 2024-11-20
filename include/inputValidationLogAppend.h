@@ -115,6 +115,14 @@ public:
   std::string logFile = "";
 
   LogAppendArgs(int argc, char *argv[]) {
+    std::cout << "argc: " << argc << std::endl;
+
+    // Print all arguments in argv
+    std::cout << "Arguments:" << std::endl;
+    for (int i = 0; i < argc; ++i) {
+      std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+    }
+
     if (argc < 2) {
       std::cerr << "Not enough arguments. Usage: logappend -T <timestamp> -K "
                    "<token> (-E | -G) (-A | "
@@ -150,7 +158,7 @@ public:
     if (!this->isBatch) {
       for (size_t i = 0; i < args.size(); ++i) {
         const std::string &arg = args[i];
-        std::cout << arg << std::endl;
+        // std::cout << arg << std::endl;
         if (arg == "-T") {
           if (i + 1 < args.size()) {
             try {
@@ -194,9 +202,9 @@ public:
           } else {
             throw std::invalid_argument("Missing room ID value");
           }
-        } else if (i == args.size()) {
+        } else if (i == args.size() - 1) {
           // logFile is the last item
-          this->logFile = args[++i];
+          this->logFile = args[i];
           file_validation();
         } else {
           throw std::invalid_argument("Unknown argument: " + arg);
@@ -240,6 +248,7 @@ public:
   // file_validation validates the name of the file
   // it does not validate if there is any file relates to that name
   void file_validation() {
+    std::cout << "filkdl;akfka;" << std::endl;
     if (logFile.empty()) {
       throw std::invalid_argument("Invalid Filename");
     }
@@ -255,31 +264,14 @@ public:
   // batch_validation validates if the batch filename is correct
   // if does not check if there is any file or not
   void batch_validation() {
+    if (batchFile.empty()) {
+      throw std::invalid_argument("No Batch File");
+    }
     for (char c : batchFile) {
-      if (!std::isalnum(c)) {
-        std::cerr << "Invalid: Batch file" << std::endl;
+      if (!std::isalnum(c) && c != '.' && c != '_') {
+        std::cerr << "Invalid batch file name" << std::endl;
         exit(255);
       }
-
-      std::fstream file(batchFile);
-      if (!file.is_open()) {
-        std::cout << "Error opening the batch file!" << std::endl;
-        exit(255);
-      }
-      std::string line;
-      int count = 0;
-      while (std::getline(file, line)) {
-        if (line.empty() || line.find("-B") != std::string::npos) {
-          std::cerr << "Invalid command on line: " << count << ") " << line
-                    << std::endl;
-          return;
-        }
-        count++;
-      }
-      file.close();
-
-      // todo. check each line of the batch file and ensure that it has no other
-      // -B commands in it
     }
   }
   // room_validation validates the room and is under the integer constraints.
@@ -332,37 +324,3 @@ public:
   void printHelp() const;
   void print() const;
 };
-// class LogAppendArgs {
-// public:
-//   std::string timestampDetails;
-//   int timestamp;
-//   std::string tokenDetails;
-//   std::string token;
-//   std::string employeeDetails;
-//   std::string employeeName;
-//   std::string guestDetails;
-//   std::string arrivalDetails;
-//   bool isArrival;
-//   std::string leavingDetails;
-//   bool isLeaving;
-//   std::string roomDetails;
-//   int roomId;
-//
-//   std::string batchDetails;
-//   bool isBatch;
-//   std::string batchFile;
-//
-//   std::string logDetails;
-//   std::string logFile;
-//
-//   LogAppendArgs(int argc, char *argv[]);
-//   bool validate();
-//   void file_validation();
-//   void batch_validation();
-//   int get_most_recent_time();
-//   void room_validation();
-//   void name_validation(const std::string name);
-//   void token_validation();
-//   void validate_timestamp();
-//   void printHelp();
-// };
