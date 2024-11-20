@@ -9,3 +9,4 @@ bool isNumeric(const std::string &str) {
     }
     return true;
 }
+

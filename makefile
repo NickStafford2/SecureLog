@@ -1,11 +1,22 @@
 # Compiler and Flags
-CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++11
-
+CXX := clang++
+CXXFLAGS := -Wall -Wextra -std=c++11 -stdlib=libstdc++
+# Add include paths
+CXXFLAGS += -I/usr/include/c++/11 \
+            -I/usr/include/x86_64-linux-gnu/c++/11 \
+            -I/usr/include/c++/11/backward \
+            -I/usr/lib/gcc/x86_64-linux-gnu/11/include \
+            -I/usr/local/include \
+            -I/usr/include/x86_64-linux-gnu \
+            -I/usr/include
+#
 # Add OpenSSL flags
 CXXFLAGS += -I/usr/include/openssl
+# Add linker path for C++ standard library
+LDFLAGS := -L/usr/lib/gcc/x86_64-linux-gnu/11
+# Add OpenSSL library
 LDFLAGS += -lcrypto
-
+# Project-specific includes
 INCLUDES := -Iinclude
 
 # Directories
@@ -13,9 +24,7 @@ SRC_DIR := src
 INCLUDE_DIR := include
 TEST_DIR := tests
 OBJ_DIR := build
-BIN_DIR := bin
-
-# Find all source files
+BIN_DIR := bin# Find all source files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
 
@@ -39,9 +48,9 @@ makedirs:
 	@mkdir -p $(DIRS)
 
 # Pattern rule for main executables
-$(BIN_DIR)/%: $(OBJ_DIR)/%.o $(OBJ_DIR)/inputValidation.o
+$(BIN_DIR)/%: $(OBJ_DIR)/%.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
 	@echo "Linking $@..."
-	@$(CXX) $(CXXFLAGS) $^ -o $@
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "Successfully created $@"
 
 # Compile source files
@@ -59,7 +68,7 @@ $(OBJ_DIR)/test_%.o: $(TEST_DIR)/%.cpp
 # Link test executable
 $(TEST_EXECUTABLE): $(TEST_OBJS) $(filter-out $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/logRead.o,$(OBJS))
 	@echo "Linking tests..."
-	@$(CXX) $(CXXFLAGS) $^ -o $@ -lgtest -lgtest_main -pthread
+	@$(CXX) $(CXXFLAGS) $^ -o $@ -lgtest -lgtest_main -pthread $(LDFLAGS)
 	@echo "Successfully created test executable"
 
 # Clean build files
@@ -78,3 +87,4 @@ test: $(TEST_EXECUTABLE)
 
 # Include dependencies
 -include $(OBJS:.o=.d)
+
