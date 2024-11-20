@@ -11,139 +11,6 @@
 #include "inputValidation.h"
 #include "inputValidationLogAppend.h"
 
-// check all the options like -T -K (-A or -L)-R (-E or -G)
-void check_command(int argc, char *argv[]) {
-  if (argc == 3) {
-    assert(std::strcmp(argv[1], "-B") == 0);
-    std::cout << "-B check success" << std::endl;
-  }
-  if (argc == 9) {
-    assert(
-        std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
-        (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0) &&
-        (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0));
-    std::cout << "Arguments content check successful!" << std::endl;
-    return;
-  }
-  if (argc == 11) {
-    assert(
-        std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
-        (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0) &&
-        (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") == 0) &&
-        std::strcmp(argv[8], "-R") == 0);
-    std::cout << "Arguments content check successful!" << std::endl;
-    return;
-  }
-}
-
-// batch_validation validates if the batch filename is correct
-// if does not check if there is any file or not
-std::string batch_validation(const std::string &str) {
-  for (char c : str) {
-    if (!std::isalnum(c)) {
-      std::cerr << "Invalid: Batch" << std::endl;
-      exit(255);
-    }
-  }
-  std::cout << "Batch is successfully validated!" << std::endl;
-  return str;
-}
-
-// get_most_recent_time grabs the most recent time present in that file
-int get_most_recent_time(int argc, const std::string &filename) {
-  // std::cout << "get most recent time is working" << std::endl;
-  int time = 1;
-  if (argc == 9) {
-    std::ofstream writeFile(filename, std::ios::app);
-    writeFile.close();
-  }
-
-  std::fstream file(filename);
-  if (!file.is_open()) {
-    std::cout << "Error opening the file!" << std::endl;
-
-    exit(255);
-  }
-  std::string line;
-  while (std::getline(file, line)) {
-    // std::cout << line << std::endl;
-    std::list<std::string> wordList;
-    std::istringstream iss(line);
-    std::string word;
-    // Split line into words and store each word in the list
-    while (iss >> word) {
-      wordList.push_back(word);
-    }
-    auto it = wordList.begin();
-    std::advance(it, 1);
-
-    if (std::stoi(*it) > time) {
-      time = std::stoi(*it);
-    }
-  }
-  file.close();
-  // std::cout << "most recent time is: " << time << std::endl;
-  return time;
-}
-
-// validate_timestamp validates the time constraints.
-void validate_timestamp(const int &argc, const int &currentTimestamp,
-                        const std::string &filename) {
-  int mostRecentTimestamp = get_most_recent_time(argc, filename);
-  // std::cout << "this line" << std::endl;
-  if (currentTimestamp <= mostRecentTimestamp || currentTimestamp < 1 ||
-      currentTimestamp > 1073741823) {
-    std::cerr << "Invalid: Timestamp" << std::endl;
-    exit(255);
-  }
-  std::cout << "Timestamp validation successful!" << std::endl;
-  return;
-}
-
-// token_validation validates the secret key
-void token_validation(const std::string str) {
-  for (char c : str) {
-    if (!std::isalnum(c)) {
-      std::cerr << "Invalid: Token" << std::endl;
-      exit(255);
-    }
-  }
-  std::cout << "Token is successfully validated!" << std::endl;
-  return;
-}
-
-// name_validation validates the name of the person
-void name_validation(const std::string name) {
-  for (char n : name) {
-    if (!std::isalpha(n)) {
-      std::cerr << "Invalid: Name" << std::endl;
-      exit(255);
-    }
-  }
-  std::cout << "Name is successfully validated" << std::endl;
-  return;
-}
-// file_validation validates the name of the file
-// it does not validate if there is any file relates to that name
-std::string file_validation(const std::string filename) {
-  for (char n : filename) {
-    if (!std::isalnum(n) && n != '_' && n != '.') {
-      std::cerr << "Invalid: Filename " << std::endl;
-      exit(255);
-    }
-  }
-  std::cout << "Filename is successfully validated" << std::endl;
-  return filename;
-}
-// room_validation validates the room and is under the integer constraints.
-void room_validation(int room) {
-  if (room < 1 || room > 1073741823) {
-    std::cerr << "Invalid: Room" << std::endl;
-    exit(255);
-  }
-  std::cout << "Room validation successful!" << std::endl;
-  return;
-}
 // check_constraints checks all of the constraints to of the state of the
 // gallery
 bool check_constraints(char *argv[], std::string filename) {
@@ -248,33 +115,34 @@ bool check_constraints(char *argv[], std::string filename) {
 void executor(int argc, char *argv[]) {
   std::cout << std::endl;
   std::string filename;
-  // std::cout << "Argument length: " << argc<< std::endl;
+  std::cout << "Argument length: " << argc << std::endl;
   if (argc == 9 || argc == 11) {
-    std::cout << "Argument length check successful!" << std::endl;
-    // all the leftover code goes here
-    // check if it is 9, 3, or 11
-    if (argc == 9) {
-      check_command(argc, argv);
-      filename = file_validation(argv[8]) + ".txt";
-      validate_timestamp(argc, std::stoi(argv[2]), filename);
-      token_validation(argv[4]);
-      name_validation(argv[7]);
-      check_constraints(argv, filename);
-
-      std::cout << "It is a single command with no room in it." << std::endl;
-
-    } else if (argc == 11) {
-      check_command(argc, argv);
-      filename = file_validation(argv[10]) + ".txt";
-      validate_timestamp(argc, std::stoi(argv[2]), filename);
-      token_validation(argv[4]);
-      name_validation(argv[7]);
-      room_validation(std::stoi(argv[9]));
-      check_constraints(argv, filename);
-      std::cout << "It is a single command with room in it" << std::endl;
-    }
-
-    // lets try to insert into the file
+    //   std::cout << "Argument length check successful!" << std::endl;
+    //   // all the leftover code goes here
+    //   // check if it is 9, 3, or 11
+    //   if (argc == 9) {
+    //     check_command(argc, argv);
+    //     filename = file_validation(argv[8]) + ".txt";
+    //     validate_timestamp(argc, std::stoi(argv[2]), filename);
+    //     token_validation(argv[4]);
+    //     name_validation(argv[7]);
+    //     check_constraints(argv, filename);
+    //
+    //     std::cout << "It is a single command with no room in it." <<
+    //     std::endl;
+    //
+    //   } else if (argc == 11) {
+    //     check_command(argc, argv);
+    //     filename = file_validation(argv[10]) + ".txt";
+    //     validate_timestamp(argc, std::stoi(argv[2]), filename);
+    //     token_validation(argv[4]);
+    //     name_validation(argv[7]);
+    //     room_validation(std::stoi(argv[9]));
+    //     check_constraints(argv, filename);
+    //     std::cout << "It is a single command with room in it" << std::endl;
+    //   }
+    //
+    //   // lets try to insert into the file
     // open the file for appending
     std::ofstream writeFile(filename, std::ios::app);
 
@@ -330,26 +198,51 @@ void process_single_command(const std::string &command) {
 int main(int argc, char *argv[]) {
   parseArgs(argc, argv);
   return 1;
-
-  if (argc == 3) {
-    // run the batch command
-    check_command(argc, argv);
-    std::string filename = batch_validation(argv[2]) + ".txt";
-    std::cout << filename << std::endl;
-
-    std::fstream file(filename);
-    if (!file.is_open()) {
-      std::cout << "Error opening the batch file!" << std::endl;
-      exit(255);
-    }
-    std::string line;
-    while (std::getline(file, line)) {
-      process_single_command(line);
-    }
-    file.close();
-
-  } else {
-    // run the sinle line command
-    executor(argc, argv);
-  }
 }
+//
+// if (argc == 3) {
+//   // run the batch command
+//   check_command(argc, argv);
+//   std::string filename = batch_validation(argv[2]) + ".txt";
+//   std::cout << filename << std::endl;
+//
+//   std::fstream file(filename);
+//   std::string line;
+//   while (std::getline(file, line)) {
+//     process_single_command(line);
+//   }
+//   file.close();
+//
+// } else {
+//   // run the sinle line command
+//   executor(argc, argv);
+// }
+// }
+
+//
+// // check all the options like -T -K (-A or -L)-R (-E or -G)
+// void check_command(int argc, char *argv[]) {
+//   if (argc == 3) {
+//     assert(std::strcmp(argv[1], "-B") == 0);
+//     std::cout << "-B check success" << std::endl;
+//   }
+//   if (argc == 9) {
+//     assert(
+//         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
+//         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0)
+//         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") ==
+//         0));
+//     std::cout << "Arguments content check successful!" << std::endl;
+//     return;
+//   }
+//   if (argc == 11) {
+//     assert(
+//         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
+//         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0)
+//         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") ==
+//         0) && std::strcmp(argv[8], "-R") == 0);
+//     std::cout << "Arguments content check successful!" << std::endl;
+//     return;
+//   }
+// }
+//
