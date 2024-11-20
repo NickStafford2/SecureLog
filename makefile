@@ -1,56 +1,75 @@
-# Makefile
 # Compiler and Flags
-CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
-
-# OpenSSL Libraries
-OPENSSL_LIBS = -lssl -lcrypto
+CXX := g++
+CXXFLAGS := -Wall -Wextra -std=c++11
+INCLUDES := -Iinclude
 
 # Directories
-SRC_DIR = include
-OBJ_DIR = build
-INCLUDE_DIR = include
+SRC_DIR := src
+INCLUDE_DIR := include
+TEST_DIR := tests
+OBJ_DIR := build
+BIN_DIR := bin
 
-# Source Files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+# Find all source files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
 
-# Object Files (create object files in the 'build' directory)
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+# Generate object file names
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+TEST_OBJS := $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(OBJ_DIR)/test_%.o)
 
-# Executable Names
-EXEC_LOGAPPEND = logAppend
-EXEC_LOGREAD = logRead
+# Main executables
+MAIN_TARGETS := logAppend logRead
+EXECUTABLES := $(addprefix $(BIN_DIR)/,$(MAIN_TARGETS))
+TEST_EXECUTABLE := $(BIN_DIR)/runTests
 
-# Build Targets
-all: $(OBJ_DIR) $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+# Ensure the build directories exist
+DIRS := $(OBJ_DIR) $(BIN_DIR)
 
-$(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o
-	@echo "Compiling $(EXEC_LOGAPPEND)..."
-	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
-	@echo "$(EXEC_LOGAPPEND) compiled successfully!"
+# Default target
+all: makedirs $(EXECUTABLES) $(TEST_EXECUTABLE)
 
-$(EXEC_LOGREAD): $(OBJ_DIR)/logRead.o $(OBJ_DIR)/crypto.o
-	@echo "Compiling $(EXEC_LOGREAD)..."
-	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
-	@echo "$(EXEC_LOGREAD) compiled successfully!"
+# Create necessary directories
+makedirs:
+	@mkdir -p $(DIRS)
 
-# Compile Source Files to Object Files
+# Pattern rule for main executables
+$(BIN_DIR)/%: $(OBJ_DIR)/%.o $(OBJ_DIR)/inputValidation.o
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@
+	@echo "Successfully created $@"
+
+# Compile source files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling $< to $@..."
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-	@echo "Compiled $< successfully!"
+	@echo "Compiling $<..."
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "Successfully compiled $<"
 
-# Ensure build directory exists
-$(OBJ_DIR):
-	@echo "Creating build directory..."
-	mkdir -p $(OBJ_DIR)
-	@echo "Build directory created."
+# Compile test files
+$(OBJ_DIR)/test_%.o: $(TEST_DIR)/%.cpp
+	@echo "Compiling test $<..."
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "Successfully compiled test $<"
 
-# Clean up build files
+# Link test executable
+$(TEST_EXECUTABLE): $(TEST_OBJS) $(filter-out $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/logRead.o,$(OBJS))
+	@echo "Linking tests..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ -lgtest -lgtest_main -pthread
+	@echo "Successfully created test executable"
+
+# Clean build files
 clean:
-	@echo "Cleaning up build files..."
-	rm -rf $(OBJ_DIR)/*.o logAppend logRead
-	@echo "Clean up successful."
+	@echo "Cleaning build files..."
+	@rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@echo "Clean complete"
 
-.PHONY: all clean $(OBJ_DIR)
+# Run tests
+test: $(TEST_EXECUTABLE)
+	@echo "Running tests..."
+	@./$(TEST_EXECUTABLE)
 
+# Declare phony targets
+.PHONY: all clean test makedirs
+
+# Include dependencies
+-include $(OBJS:.o=.d)
