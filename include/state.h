@@ -1,6 +1,12 @@
 #pragma once
 
+#include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <openssl/aes.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -31,6 +37,27 @@ public:
               << (participantType == ParticipantType::EMPLOYEE ? "Employee"
                                                                : "Guest")
               << std::endl;
+  }
+  // Serialize event to string
+  std::string serialize() const {
+    std::stringstream ss;
+    ss << timestamp << "," << person << "," << from_location << ","
+       << to_location << "," << static_cast<int>(participantType);
+    return ss.str();
+  }
+
+  // Deserialize string to Event
+  static Event deserialize(const std::string &data) {
+    std::stringstream ss(data);
+    int ts, from, to, typeInt;
+    std::string person;
+    char comma;
+
+    ss >> ts >> comma >> person >> comma >> from >> comma >> to >> comma >>
+        typeInt;
+
+    // Create and return the Event object
+    return Event(ts, person, from, to, static_cast<ParticipantType>(typeInt));
   }
 };
 
@@ -133,6 +160,121 @@ public:
     std::cout << "Events: \n";
     for (const auto &event : events) {
       event.printEvent();
+    }
+  }
+
+  // Function to print out the gallery's current state
+  void printGallery() const {
+    std::cout << "Employees: \n";
+    for (const auto &entry : employees) {
+      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+                << std::endl;
+    }
+
+    std::cout << "Guests: \n";
+    for (const auto &entry : guests) {
+      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+                << std::endl;
+    }
+
+    std::cout << "Events: \n";
+    for (const auto &event : events) {
+      event.printEvent();
+    }
+  }
+  // Serialize gallery to string
+  std::string serialize() const {
+    std::stringstream ss;
+
+    // Serialize employees
+    ss << "Employees:\n";
+    for (const auto &entry : employees) {
+      ss << entry.first << "," << entry.second << "\n";
+    }
+
+    // Serialize guests
+    ss << "Guests:\n";
+    for (const auto &entry : guests) {
+      ss << entry.first << "," << entry.second << "\n";
+    }
+
+    // Serialize events
+    ss << "Events:\n";
+    for (const auto &event : events) {
+      ss << event.serialize() << "\n";
+    }
+
+    return ss.str();
+  }
+
+  // Deserialize string to Gallery
+  static Gallery deserialize(const std::string &data) {
+    std::stringstream ss(data);
+    std::string line;
+    Gallery gallery;
+
+    // Read employees
+    while (std::getline(ss, line) && line != "Guests:") {
+      if (line.empty() || line == "Employees:")
+        continue;
+
+      std::stringstream empStream(line);
+      std::string name;
+      int room;
+      char comma;
+
+      std::getline(empStream, name, ',');
+      empStream >> room;
+      gallery.employees[name] = room;
+    }
+
+    // Read guests
+    while (std::getline(ss, line) && line != "Events:") {
+      if (line.empty() || line == "Guests:")
+        continue;
+
+      std::stringstream guestStream(line);
+      std::string name;
+      int room;
+      char comma;
+
+      std::getline(guestStream, name, ',');
+      guestStream >> room;
+      gallery.guests[name] = room;
+    }
+
+    // Read events
+    while (std::getline(ss, line)) {
+      if (!line.empty()) {
+        gallery.events.push_back(Event::deserialize(line));
+      }
+    }
+
+    return gallery;
+  }
+
+  // Function to save to a file
+  void saveToFile(const std::string &filename) const {
+    std::ofstream outFile(filename);
+    if (outFile) {
+      outFile << serialize();
+      outFile.close();
+      std::cout << "Gallery data saved to " << filename << std::endl;
+    } else {
+      throw std::ios_base::failure("Failed to open file for writing.");
+    }
+  }
+
+  // Function to load from a file
+  static Gallery loadFromFile(const std::string &filename) {
+    std::ifstream inFile(filename);
+    if (inFile) {
+      std::stringstream buffer;
+      buffer << inFile.rdbuf();
+      inFile.close();
+      return deserialize(buffer.str());
+    } else {
+      throw std::ios_base::failure("Failed to open file for reading.");
     }
   }
 };

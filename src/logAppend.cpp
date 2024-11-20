@@ -149,6 +149,15 @@ void execute(LogAppendArgs args) {
   event.printEvent();
   Gallery gallery;
   gallery.move(event);
+  gallery.saveToFile("gallery_data.txt");
+  // Load the gallery data back from the file
+  try {
+    Gallery loadedGallery = Gallery::loadFromFile("gallery_data.txt");
+    std::cout << "Success: " << std::endl;
+    loadedGallery.printGallery();
+  } catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
 }
 
 int main(int argc, char *argv[]) {
