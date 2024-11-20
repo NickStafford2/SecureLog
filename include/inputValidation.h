@@ -5,4 +5,4 @@
 
 bool isNumeric(const std::string &str);
 
-#endif 
+#endif

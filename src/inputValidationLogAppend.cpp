@@ -1,15 +1,12 @@
-#include "inputValidationLogAppend.h"
 #include <cassert>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <list>
-#include <sstream>
 #include <stdexcept>
 #include <stdio.h>
 #include <string>
-#include <unordered_map>
 #include <vector>
+
+#include "inputValidationLogAppend.h"
 
 void printHelp() {
   std::cout << "Usage: logread [OPTIONS] <log>\n\n";
@@ -58,28 +55,106 @@ void printHelp() {
 
 class LogAppendArgs {
 public:
-  /* -T timestamp Time the event is recorded. This timestamp is formatted as the
-   * number of seconds since the gallery opened and is a non-negative integer
-   * (ranging from 1 to 1073741823 inclusively). Time should always increase,
-   * invoking logappend with an event at a time that is prior to the most recent
-   * event already recorded is an error.
-   */
+  std::string timestampDetails =
+      "-T timestamp: Time the event is recorded. This timestamp is formatted "
+      "as the number of seconds since the gallery opened and is a non-negative "
+      "integer (ranging from 1 to 1073741823 inclusively). Time should always "
+      "increase, invoking logappend with an event at a time that is prior to "
+      "the most recent event already recorded is an error.";
   int timestamp = -1;
-  /* -K token Token used to authenticate the log. This token consists of an
-   * arbitrary- sized string of alphanumeric (a-z, A-Z, and 0-9) characters. The
-   * user supplies this token via the command line when creating a new log. Once
-   * a log is created with a specific token, any subsequent appends to that log
-   * must use the same token. You may assume the token contains sufficient
-   * entropy that it cannot be guessed in a reasonable amount of time.
-   */
+
+  std::string tokenDetails =
+      "-K token Token used to authenticate the log. This token consists of an "
+      "arbitrary-sized string of alphanumeric (a-z, A-Z, and 0-9) characters. "
+      "The user supplies this token via the command line when creating a new "
+      "log. Once a log is created with a specific token, any subsequent "
+      "appends to that log must use the same token. You may assume the token "
+      "contains sufficient entropy that it cannot be guessed in a reasonable "
+      "amount of time.";
   std::string token;
-  bool isEmployee = false;
-  bool isGuest = false;
+
+  std::string employeeDetails =
+      "-E employee-name Name of employee. Names are alphabetic characters "
+      "(a-z, A-Z) in upper and lower case. Names may not contain spaces. Names "
+      "are case sensitive. Employees and guests can have the same name. The "
+      "names can be arbitrarily long. More concretely, if you make an "
+      "assumption about lengths, and an attacker can successfully land a "
+      "correctness, or even confidentiality or integrity attack on the contest "
+      "server by using a longer name, this will be considered a valid "
+      "attack.";
+  std::string employeeName;
+
+  std::string guestDetails =
+      "-G guest-name Name of guest. Names are alphabetic characters (a-z, A-Z) "
+      "in upper and lower case. Names may not contain spaces. Names are case "
+      "sensitive. Employees and guests can have the same name. The names can "
+      "be arbitrarily long. More concretely, if you make an assumption about "
+      "lengths, and an attacker can successfully land a correctness, or even "
+      "confidentiality or integrity attack on the contest server by using a "
+      "longer name, this will be considered a valid attack.";
+  std::string guestName;
+
+  std::string arrivalDetails =
+      "-A Specify that the current event is an arrival; can be used with -E, "
+      "-G, and -R. This option can be used to signify the arrival of an "
+      "employee or guest to the gallery, or, to a specific room with -R. If -R "
+      "is not provided, -A indicates an arrival to the gallery as a whole. No "
+      "employee or guest should enter a room without first entering the "
+      "gallery. No employee or guest should enter a room without having left a "
+      "previous room. Violation of either of these conditions implies "
+      "inconsistency with the current log state and should result in logappend "
+      "exiting with an error condition.";
   bool isArrival = false;
+
+  std::string leavingDetails =
+      "-L Specify that the current event is a departure, can be used with -E, "
+      "-G, and -R.This option can be used to signify the departure of an "
+      "employee or guest from the gallery, or, from a specific room with -R. "
+      "If -R is not provided, -L indicates a deparature from the gallery as a "
+      "whole. No employee or guest should leave the gallery without first "
+      "leaving the last room they entered. No employee or guest should leave a "
+      "room without entering it. Violation of either of these conditions "
+      "implies inconsistency with the current log state and should result in "
+      "logappend exiting with an error condition.";
   bool isLeaving = false;
+
+  std::string roomDetails =
+      "-R room-id Specifies the room ID for an event. Room IDs are "
+      "non-negative integer characters with no spaces (ranging from 0 to "
+      "1073741823 inclusively). Leading zeros in room IDs should be dropped, "
+      "such that 003, 03, and 3 are all equivalent room IDs. A gallery is "
+      "composed of multiple rooms. A complete list of the rooms of the gallery "
+      "is not available and rooms will only be described when an employee or "
+      "guest enters or leaves one. A room cannot be left by an employee or "
+      "guest unless that employee or guest has previously entered that room. "
+      "An employee or guest may only occupy one room at a time. If a room ID "
+      "is not specified, the event is for the entire art gallery.";
   std::string roomId;
+
+  std::string batchDetails =
+      "-B file Specifies a batch file of commands. file contains one or more "
+      "command lines, not including the logappend command itself (just its "
+      "options); the lines are separated by \n (newlines), but the final "
+      "newline in a file is optional. These commands should be processed by "
+      "logappend individually, in order. This allows logappend to add data to "
+      "the file without forking or re-invoking. Of course, option -B cannot "
+      "itself appear in one of these command lines. Commands specified in a "
+      "batch file include the log name. If a single line in a batch file is "
+      "invalid, print the appropriate error message for that line and continue "
+      "processing the rest of the batch file. Here is an example (the last "
+      "one).";
   bool isBatch = false;
   std::string batchFile;
+
+  std::string logDetails =
+      "log The name of the file containing the event log. The log’s filename "
+      "may be specified with a string of alphanumeric characters (including "
+      "underscores and periods). If the log does not exist, logappend should "
+      "create it. logappend should add data to the log, preserving the history "
+      "of the log such that queries from logread can be answered. If the log "
+      "file cannot be created due to an invalid name, or any other error, "
+      "logappend should print “invalid” and return 255.";
+  std::string logFile;
 
   LogAppendArgs(int argc, char *argv[]) {
     std::cout << "its working" << std::endl;
@@ -88,53 +163,55 @@ public:
       args.push_back(argv[i]);
     }
 
-    for (size_t i = 0; i < arguments.size(); ++i) {
-      const std::string &arg = arguments[i];
+    for (size_t i = 0; i < args.size(); ++i) {
+      const std::string &arg = args[i];
 
       if (arg == "-B") {
-        this.isBatch = true;
-        if (i + 1 < arguments.size()) {
-          this.batchFile = arguments[++i];
+        this->isBatch = true;
+        if (i + 1 < args.size()) {
+          this->batchFile = args[++i];
         } else {
           throw std::invalid_argument("Missing batch file argument for -B");
         }
       }
     }
-    if (this.isBatch && args.size() > 3) {
+    if (this->isBatch && args.size() > 3) {
       throw std::invalid_argument("Too many arguments for -B");
     }
-    if (!this.isBatch) {
-      for (size_t i = 0; i < arguments.size(); ++i) {
+    if (!this->isBatch) {
+      for (size_t i = 0; i < args.size(); ++i) {
+        const std::string &arg = args[i];
         if (arg == "-T") {
-          if (i + 1 < arguments.size()) {
-            try {
-              this.timestamp = std::stoi(arguments[++i]);
-              if (this.timestamp < 0) {
-                throw std::invalid_argument("Timestamp must be non-negative");
-              }
-            } catch (const std::exception &e) {
-              throw std::invalid_argument("Invalid timestamp format");
-            }
+          if (i + 1 < args.size()) {
+            this->timestamp = std::stoi(args[++i]);
           } else {
             throw std::invalid_argument("Missing timestamp value");
           }
         } else if (arg == "-K") {
-          if (i + 1 < arguments.size()) {
-            this.token = arguments[++i];
+          if (i + 1 < args.size()) {
+            this->token = args[++i];
           } else {
             throw std::invalid_argument("Missing token value");
           }
         } else if (arg == "-E") {
-          this.isEmployee = true;
+          if (i + 1 < args.size()) {
+            this->employeeName = std::stoi(args[++i]);
+          } else {
+            throw std::invalid_argument("Missing employee name");
+          }
         } else if (arg == "-G") {
-          this.isGuest = true;
+          if (i + 1 < args.size()) {
+            this->guestName = std::stoi(args[++i]);
+          } else {
+            throw std::invalid_argument("Missing guest name");
+          }
         } else if (arg == "-A") {
-          this.isArrival = true;
+          this->isArrival = true;
         } else if (arg == "-L") {
-          this.isLeaving = true;
+          this->isLeaving = true;
         } else if (arg == "-R") {
           if (i + 1 < args.size()) {
-            this.roomId = args[++i];
+            this->roomId = args[++i];
           } else {
             throw std::invalid_argument("Missing room ID value");
           }
@@ -142,6 +219,7 @@ public:
           throw std::invalid_argument("Unknown argument: " + arg);
         }
       }
+      this->validate();
     }
   }
 
@@ -156,11 +234,11 @@ public:
       throw std::invalid_argument("Authentication token is required");
     }
     if (!isBatch) {
-      if (!isEmployee && !isGuest) {
+      if (employeeName.empty() && guestName.empty()) {
         throw std::invalid_argument(
             "Must specify either employee (-E) or guest (-G)");
       }
-      if (isEmployee && isGuest) {
+      if (!employeeName.empty() && !guestName.empty()) {
         throw std::invalid_argument("Cannot be both employee and guest");
       }
       if (!isArrival && !isLeaving) {
@@ -221,68 +299,68 @@ int parseArgs(int argc, char *argv[]) {
 //
 //
 //
-// }
 
-class LogAppendParser {
-public:
-  LogAppendArgs parse(int argc, char *argv[]) {
-    LogAppendArgs args;
-    std::vector<std::string> arguments(argv + 1, argv + argc);
-
-    for (size_t i = 0; i < arguments.size(); ++i) {
-      const std::string &arg = arguments[i];
-
-      if (arg == "-B") {
-        args.isBatch = true;
-        if (i + 1 < arguments.size()) {
-          args.batchFile = arguments[++i];
-        } else {
-          throw std::invalid_argument("Missing batch file argument for -B");
-        }
-        continue;
-      }
-
-      if (!args.isBatch) {
-        if (arg == "-T") {
-          if (i + 1 < arguments.size()) {
-            try {
-              args.timestamp = std::stoi(arguments[++i]);
-              if (args.timestamp < 0) {
-                throw std::invalid_argument("Timestamp must be non-negative");
-              }
-            } catch (const std::exception &e) {
-              throw std::invalid_argument("Invalid timestamp format");
-            }
-          } else {
-            throw std::invalid_argument("Missing timestamp value");
-          }
-        } else if (arg == "-K") {
-          if (i + 1 < arguments.size()) {
-            args.token = arguments[++i];
-          } else {
-            throw std::invalid_argument("Missing token value");
-          }
-        } else if (arg == "-E") {
-          args.isEmployee = true;
-        } else if (arg == "-G") {
-          args.isGuest = true;
-        } else if (arg == "-A") {
-          args.isArrival = true;
-        } else if (arg == "-L") {
-          args.isLeaving = true;
-        } else if (arg == "-R") {
-          if (i + 1 < arguments.size()) {
-            args.roomId = arguments[++i];
-          } else {
-            throw std::invalid_argument("Missing room ID value");
-          }
-        } else {
-          throw std::invalid_argument("Unknown argument: " + arg);
-        }
-      }
-    }
-
-    args.validate();
-    return args;
-  }
-};
+// class LogAppendParser {
+// public:
+//   LogAppendArgs parse(int argc, char *argv[]) {
+//     LogAppendArgs args;
+//     std::vector<std::string> arguments(argv + 1, argv + argc);
+//
+//     for (size_t i = 0; i < arguments.size(); ++i) {
+//       const std::string &arg = arguments[i];
+//
+//       if (arg == "-B") {
+//         args.isBatch = true;
+//         if (i + 1 < arguments.size()) {
+//           args.batchFile = arguments[++i];
+//         } else {
+//           throw std::invalid_argument("Missing batch file argument for -B");
+//         }
+//         continue;
+//       }
+//
+//       if (!args.isBatch) {
+//         if (arg == "-T") {
+//           if (i + 1 < arguments.size()) {
+//             try {
+//               args.timestamp = std::stoi(arguments[++i]);
+//               if (args.timestamp < 0) {
+//                 throw std::invalid_argument("Timestamp must be
+//                 non-negative");
+//               }
+//             } catch (const std::exception &e) {
+//               throw std::invalid_argument("Invalid timestamp format");
+//             }
+//           } else {
+//             throw std::invalid_argument("Missing timestamp value");
+//           }
+//         } else if (arg == "-K") {
+//           if (i + 1 < arguments.size()) {
+//             args.token = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing token value");
+//           }
+//         } else if (arg == "-E") {
+//           args.isEmployee = true;
+//         } else if (arg == "-G") {
+//           args.isGuest = true;
+//         } else if (arg == "-A") {
+//           args.isArrival = true;
+//         } else if (arg == "-L") {
+//           args.isLeaving = true;
+//         } else if (arg == "-R") {
+//           if (i + 1 < arguments.size()) {
+//             args.roomId = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing room ID value");
+//           }
+//         } else {
+//           throw std::invalid_argument("Unknown argument: " + arg);
+//         }
+//       }
+//     }
+//
+//     args.validate();
+//     return args;
+//   }
+// };

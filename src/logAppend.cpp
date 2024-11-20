@@ -1,5 +1,3 @@
-#include "inputValidation.h"
-#include "inputValidationLogAppend.h"
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -9,6 +7,9 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+
+#include "inputValidation.h"
+#include "inputValidationLogAppend.h"
 
 // check all the options like -T -K (-A or -L)-R (-E or -G)
 void check_command(int argc, char *argv[]) {
