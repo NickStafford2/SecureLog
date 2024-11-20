@@ -1,4 +1,4 @@
-# Compiler
+# Compiler and Flags
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 
@@ -10,7 +10,7 @@ SRC_DIR = include
 OBJ_DIR = build
 INCLUDE_DIR = include
 
-# Source Files (with .cpp files located in the 'include' directory)
+# Source Files
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
 # Object Files (create object files in the 'build' directory)
@@ -24,18 +24,26 @@ EXEC_LOGREAD = logRead
 all: $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
 $(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o
+	@echo "Compiling $(EXEC_LOGAPPEND)..."
 	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
+	@echo "$(EXEC_LOGAPPEND) compiled successfully!"
 
 $(EXEC_LOGREAD): $(OBJ_DIR)/logRead.o $(OBJ_DIR)/crypto.o
+	@echo "Compiling $(EXEC_LOGREAD)..."
 	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
+	@echo "$(EXEC_LOGREAD) compiled successfully!"
 
 # Compile Source Files to Object Files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@echo "Compiling $< to $@..."
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "Compiled $< successfully!"
 
 # Clean up build files
 clean:
-	rm -f $(OBJ_DIR)/*.o $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+	@echo "Cleaning up build files..."
+	rm -f build/*.o logAppend logRead
+	@echo "Clean up successful."
 
 .PHONY: all clean
 
