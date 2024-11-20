@@ -1,7 +1,7 @@
+
 # Compiler and Flags
 CXX := clang++
-CXXFLAGS := -Wall -Wextra -std=c++11 -stdlib=libstdc++
-# Add include paths
+CXXFLAGS := -Wall -Wextra -std=c++11
 CXXFLAGS += -I/usr/include/c++/11 \
             -I/usr/include/x86_64-linux-gnu/c++/11 \
             -I/usr/include/c++/11/backward \
@@ -10,81 +10,57 @@ CXXFLAGS += -I/usr/include/c++/11 \
             -I/usr/include/x86_64-linux-gnu \
             -I/usr/include
 #
-# Add OpenSSL flags
-CXXFLAGS += -I/usr/include/openssl
-# Add linker path for C++ standard library
-LDFLAGS := -L/usr/lib/gcc/x86_64-linux-gnu/11
-# Add OpenSSL library
-LDFLAGS += -lcrypto
-# Project-specific includes
-INCLUDES := -Iinclude
+LDFLAGS := -L/usr/lib/gcc/x86_64-linux-gnu/11 -lcrypto
+INCLUDES := -Iinclude -I/usr/include/openssl
 
 # Directories
 SRC_DIR := src
-INCLUDE_DIR := include
-TEST_DIR := tests
 OBJ_DIR := build
-BIN_DIR := bin# Find all source files
+BIN_DIR := bin
+
+# Find all source files
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-TEST_SRCS := $(wildcard $(TEST_DIR)/*.cpp)
 
-# Generate object file names
+# Generate object file names dynamically from source files
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-TEST_OBJS := $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(OBJ_DIR)/test_%.o)
 
-# Main executables
-MAIN_TARGETS := logAppend logRead
-EXECUTABLES := $(addprefix $(BIN_DIR)/,$(MAIN_TARGETS))
-TEST_EXECUTABLE := $(BIN_DIR)/runTests
+# Shared object files for both executables
+SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
 
-# Ensure the build directories exist
-DIRS := $(OBJ_DIR) $(BIN_DIR)
+
+# Specify the executables you want to build
+EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead
 
 # Default target
-all: makedirs $(EXECUTABLES) $(TEST_EXECUTABLE)
+all: $(EXECUTABLES)
 
-# Create necessary directories
-makedirs:
-	@mkdir -p $(DIRS)
-
-# Pattern rule for main executables
-$(BIN_DIR)/%: $(OBJ_DIR)/%.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
+# Rule for linking the logAppend executable
+$(BIN_DIR)/logAppend: $(OBJ_DIR)/logAppend.o $(SHARED_OBJS)
 	@echo "Linking $@..."
 	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "Successfully created $@"
 
-# Compile source files
+# Rule for linking the logRead executable
+$(BIN_DIR)/logRead: $(OBJ_DIR)/logRead.o $(SHARED_OBJS)
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "Successfully created $@"
+
+# Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "Compiling $<..."
 	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 	@echo "Successfully compiled $<"
 
-# Compile test files
-$(OBJ_DIR)/test_%.o: $(TEST_DIR)/%.cpp
-	@echo "Compiling test $<..."
-	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-	@echo "Successfully compiled test $<"
-
-# Link test executable
-$(TEST_EXECUTABLE): $(TEST_OBJS) $(filter-out $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/logRead.o,$(OBJS))
-	@echo "Linking tests..."
-	@$(CXX) $(CXXFLAGS) $^ -o $@ -lgtest -lgtest_main -pthread $(LDFLAGS)
-	@echo "Successfully created test executable"
-
 # Clean build files
 clean:
 	@echo "Cleaning build files..."
-	@rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 	@echo "Clean complete"
 
-# Run tests
-test: $(TEST_EXECUTABLE)
-	@echo "Running tests..."
-	@./$(TEST_EXECUTABLE)
-
 # Declare phony targets
-.PHONY: all clean test makedirs
+.PHONY: all clean
 
-# Include dependencies
+# Include dependencies (generated automatically from source files)
 -include $(OBJS:.o=.d)
 

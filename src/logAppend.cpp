@@ -1,3 +1,17 @@
+// // #include "crypto.h"
+// #include <string>
+//
+// #include "crypto.h"
+// #include "inputValidation.h"
+//
+// int main() {
+//   bool x = fileExistsAndIsReadable("test");
+//   // bool y = fileExistsAndIsReadable2("test");
+//   CryptoUtils crypto;
+//   crypto.print(); // Test that we can use the class
+//   return 0;
+// }
+//
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -8,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "crypto.h"
 #include "inputValidation.h"
 #include "inputValidationLogAppend.h"
 #include "state.h"
@@ -161,6 +176,8 @@ void execute(LogAppendArgs args) {
 }
 
 int main(int argc, char *argv[]) {
+  CryptoUtils crypto;
+  crypto.print();
   try {
     LogAppendArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
@@ -190,64 +207,70 @@ int main(int argc, char *argv[]) {
   }
 }
 
-// file_validation validates the name of the file
-// it does not validate if there is any file relates to that name
-void file_validation(std::string logFile) {
-  // try to open
-}
-
-void validate_timestamp(int timestamp) {
-  // std::cout << "this line" << std::endl;
-  int mostRecentTimestamp = get_most_recent_time("test");
-  if (timestamp <= mostRecentTimestamp) {
-    std::cerr << "Invalid: Timestamp" << std::endl;
-    exit(255);
-  }
-}
+// // file_validation validates the name of the file
+// // it does not validate if there is any file relates to that name
+// // void file_validation(std::string logFile) {
+// //   // try to open
+// // }
 //
-// if (argc == 3) {
-//   // run the batch command
-//   check_command(argc, argv);
-//   std::string filename = batch_validation(argv[2]) + ".txt";
-//   std::cout << filename << std::endl;
-//
-//   std::fstream file(filename);
-//   std::string line;
-//   while (std::getline(file, line)) {
-//     process_single_command(line);
-//   }
-//   file.close();
-//
-// } else {
-//   // run the sinle line command
-//   executor(argc, argv);
-// }
-// }
-
-//
-// // check all the options like -T -K (-A or -L)-R (-E or -G)
-// void check_command(int argc, char *argv[]) {
-//   if (argc == 3) {
-//     assert(std::strcmp(argv[1], "-B") == 0);
-//     std::cout << "-B check success" << std::endl;
-//   }
-//   if (argc == 9) {
-//     assert(
-//         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
-//         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0)
-//         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") ==
-//         0));
-//     std::cout << "Arguments content check successful!" << std::endl;
-//     return;
-//   }
-//   if (argc == 11) {
-//     assert(
-//         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0 &&
-//         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") == 0)
-//         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G") ==
-//         0) && std::strcmp(argv[8], "-R") == 0);
-//     std::cout << "Arguments content check successful!" << std::endl;
-//     return;
+// void validate_timestamp(int timestamp) {
+//   // std::cout << "this line" << std::endl;
+//   int mostRecentTimestamp = get_most_recent_time("test");
+//   if (timestamp <= mostRecentTimestamp) {
+//     std::cerr << "Invalid: Timestamp" << std::endl;
+//     exit(255);
 //   }
 // }
+// //
+// // if (argc == 3) {
+// //   // run the batch command
+// //   check_command(argc, argv);
+// //   std::string filename = batch_validation(argv[2]) + ".txt";
+// //   std::cout << filename << std::endl;
+// //
+// //   std::fstream file(filename);
+// //   std::string line;
+// //   while (std::getline(file, line)) {
+// //     process_single_command(line);
+// //   }
+// //   file.close();
+// //
+// // } else {
+// //   // run the sinle line command
+// //   executor(argc, argv);
+// // }
+// // }
 //
+// //
+// // // check all the options like -T -K (-A or -L)-R (-E or -G)
+// // void check_command(int argc, char *argv[]) {
+// //   if (argc == 3) {
+// //     assert(std::strcmp(argv[1], "-B") == 0);
+// //     std::cout << "-B check success" << std::endl;
+// //   }
+// //   if (argc == 9) {
+// //     assert(
+// //         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0
+// &&
+// //         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") ==
+// 0)
+// //         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G")
+// ==
+// //         0));
+// //     std::cout << "Arguments content check successful!" << std::endl;
+// //     return;
+// //   }
+// //   if (argc == 11) {
+// //     assert(
+// //         std::strcmp(argv[1], "-T") == 0 && std::strcmp(argv[3], "-K") == 0
+// &&
+// //         (std::strcmp(argv[5], "-A") == 0 || std::strcmp(argv[5], "-L") ==
+// 0)
+// //         && (std::strcmp(argv[6], "-E") == 0 || std::strcmp(argv[6], "-G")
+// ==
+// //         0) && std::strcmp(argv[8], "-R") == 0);
+// //     std::cout << "Arguments content check successful!" << std::endl;
+// //     return;
+// //   }
+// // }
+// //
