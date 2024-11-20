@@ -1,6 +1,7 @@
 #pragma once
 #include <cassert>
 #include <cstring>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -28,7 +29,7 @@ public:
       "appends to that log must use the same token. You may assume the token "
       "contains sufficient entropy that it cannot be guessed in a reasonable "
       "amount of time.";
-  std::string token;
+  std::string token = "";
 
   std::string employeeDetails =
       "-E employee-name Name of employee. Names are alphabetic characters "
@@ -86,7 +87,7 @@ public:
       "guest unless that employee or guest has previously entered that room. "
       "An employee or guest may only occupy one room at a time. If a room ID "
       "is not specified, the event is for the entire art gallery.";
-  int roomId;
+  int roomId = -1;
 
   std::string batchDetails =
       "-B file Specifies a batch file of commands. file contains one or more "
@@ -101,7 +102,7 @@ public:
       "processing the rest of the batch file. Here is an example (the last "
       "one).";
   bool isBatch = false;
-  std::string batchFile;
+  std::string batchFile = "";
 
   std::string logDetails =
       "log The name of the file containing the event log. The log’s filename "
@@ -111,7 +112,7 @@ public:
       "of the log such that queries from logread can be answered. If the log "
       "file cannot be created due to an invalid name, or any other error, "
       "logappend should print “invalid” and return 255.";
-  std::string logFile;
+  std::string logFile = "";
 
   LogAppendArgs(int argc, char *argv[]) {
     if (argc < 2) {
@@ -149,9 +150,15 @@ public:
     if (!this->isBatch) {
       for (size_t i = 0; i < args.size(); ++i) {
         const std::string &arg = args[i];
+        std::cout << arg << std::endl;
         if (arg == "-T") {
           if (i + 1 < args.size()) {
-            this->timestamp = std::stoi(args[++i]);
+            try {
+              this->timestamp = std::stoi(args[++i]);
+              validate_timestamp();
+            } catch (const std::exception e) {
+              throw std::invalid_argument("timestamp must be a number");
+            }
           } else {
             throw std::invalid_argument("Missing timestamp value");
           }
@@ -164,14 +171,14 @@ public:
           }
         } else if (arg == "-E") {
           if (i + 1 < args.size()) {
-            this->employeeName = std::stoi(args[++i]);
+            this->employeeName = args[++i];
             name_validation(employeeName);
           } else {
             throw std::invalid_argument("Missing employee name");
           }
         } else if (arg == "-G") {
           if (i + 1 < args.size()) {
-            this->guestName = std::stoi(args[++i]);
+            this->guestName = args[++i];
             name_validation(guestName);
           } else {
             throw std::invalid_argument("Missing guest name");
@@ -187,13 +194,16 @@ public:
           } else {
             throw std::invalid_argument("Missing room ID value");
           }
+        } else if (i == args.size()) {
+          // logFile is the last item
+          this->logFile = args[++i];
+          file_validation();
         } else {
           throw std::invalid_argument("Unknown argument: " + arg);
         }
       }
       this->validate();
     }
-    this->print();
   }
 
   // Validate that the arguments are consistent
@@ -224,13 +234,15 @@ public:
       file_validation();
     }
 
-    validate_timestamp();
     return true;
   }
 
   // file_validation validates the name of the file
   // it does not validate if there is any file relates to that name
   void file_validation() {
+    if (logFile.empty()) {
+      throw std::invalid_argument("Invalid Filename");
+    }
     for (char n : logFile) {
       if (!std::isalnum(n) && n != '_' && n != '.') {
         std::cerr << "Invalid: Filename " << std::endl;
@@ -270,44 +282,6 @@ public:
       // -B commands in it
     }
   }
-  // get_most_recent_time grabs the most recent time present in that file
-  int get_most_recent_time() {
-    // std::cout << "get most recent time is working" << std::endl;
-    int time = 1;
-    // if (argc == 9) {
-    //   std::ofstream writeFile(filename, std::ios::app);
-    //   writeFile.close();
-    // }
-
-    std::fstream file(logFile);
-    if (!file.is_open()) {
-      std::cout << "Error opening the file!" << std::endl;
-
-      exit(255);
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-      // std::cout << line << std::endl;
-      std::list<std::string> wordList;
-      std::istringstream iss(line);
-      std::string word;
-      // Split line into words and store each word in the list
-      while (iss >> word) {
-        wordList.push_back(word);
-      }
-      auto it = wordList.begin();
-      std::advance(it, 1);
-
-      if (std::stoi(*it) > time) {
-        time = std::stoi(*it);
-      }
-    }
-    file.close();
-    // std::cout << "most recent time is: " << time << std::endl;
-    return time;
-  }
-
   // room_validation validates the room and is under the integer constraints.
   void room_validation() {
     if (roomId < 0 || roomId >= 1073741823) {
@@ -318,19 +292,25 @@ public:
   }
 
   void name_validation(const std::string name) {
+    if (name.empty()) {
+      throw std::invalid_argument("Must enter a name.");
+    }
     for (char n : name) {
       if (!std::isalpha(n)) {
         std::cerr << "Invalid: Name" << std::endl;
         exit(255);
       }
     }
-    std::cout << "Name is successfully validated" << std::endl;
+    // std::cout << "Name is successfully validated" << std::endl;
     return;
   }
 
   // token_validation validates the secret key
   void token_validation() {
     // maybe make them choose a difficult key
+    if (token.empty()) {
+      throw std::invalid_argument("Must enter a token.");
+    }
     for (char c : token) {
       if (!std::isalnum(c)) {
         std::cerr << "Invalid: Token" << std::endl;
@@ -342,10 +322,8 @@ public:
 
   // validate_timestamp validates the time constraints.
   void validate_timestamp() {
-    int mostRecentTimestamp = get_most_recent_time();
     // std::cout << "this line" << std::endl;
-    if (timestamp <= mostRecentTimestamp || timestamp < 1 ||
-        timestamp > 1073741823) {
+    if (timestamp < 1 || timestamp > 1073741823) {
       std::cerr << "Invalid: Timestamp" << std::endl;
       exit(255);
     }

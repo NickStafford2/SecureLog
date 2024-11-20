@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <list>
 #include <sstream>
 #include <stdio.h>
 #include <string>
@@ -205,15 +206,69 @@
 //   executor(argc, argv.data());
 // }
 //
+// get_most_recent_time grabs the most recent time present in that file
+int get_most_recent_time(std::string logFile) {
+  // std::cout << "get most recent time is working" << std::endl;
+  int time = 1;
+  // if (argc == 9) {
+  //   std::ofstream writeFile(filename, std::ios::app);
+  //   writeFile.close();
+  // }
+
+  std::fstream file(logFile);
+  if (!file.is_open()) {
+    std::cout << "Error opening the file!" << std::endl;
+
+    exit(255);
+  }
+
+  std::string line;
+  while (std::getline(file, line)) {
+    // std::cout << line << std::endl;
+    std::list<std::string> wordList;
+    std::istringstream iss(line);
+    std::string word;
+    // Split line into words and store each word in the list
+    while (iss >> word) {
+      wordList.push_back(word);
+    }
+    auto it = wordList.begin();
+    std::advance(it, 1);
+
+    if (std::stoi(*it) > time) {
+      time = std::stoi(*it);
+    }
+  }
+  file.close();
+  // std::cout << "most recent time is: " << time << std::endl;
+  return time;
+}
+
 int main(int argc, char *argv[]) {
   try {
     LogAppendArgs args(argc, argv);
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
+    return 255;
   }
+  std::cout << "First round of validation complete" << std::endl;
 
   return 1;
+}
+
+// file_validation validates the name of the file
+// it does not validate if there is any file relates to that name
+void file_validation(std::string logFile) {
+  // try to open
+}
+
+void validate_timestamp(int timestamp) {
+  // std::cout << "this line" << std::endl;
+  int mostRecentTimestamp = get_most_recent_time("test");
+  if (timestamp <= mostRecentTimestamp) {
+    std::cerr << "Invalid: Timestamp" << std::endl;
+    exit(255);
+  }
 }
 //
 // if (argc == 3) {
