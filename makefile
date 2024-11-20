@@ -20,5 +20,9 @@ RM      = rm -rf
 
 
 logAppend: logAppend.cpp
-	$(CC) $(CCFLAGS) -o logAppend logAppend.cpp
+	$(CC) $(CCFLAGS) -o logAppend logAppend.cpp -std=c++11
 	@echo "LogAppend build complete."
+
+logRead: logRead.cpp
+	$(CC) $(CCFLAGS) -o logRead logRead.cpp -std=c++11
+	@echo "logrRead build complete."

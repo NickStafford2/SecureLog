@@ -91,7 +91,7 @@ Some sort of terminal to access the cli.
 In order to compile the following must be installed and accessible via the PATH.
 - C++
 - Make
-- Gcc
+- Gcc / Clang
 
 ## User Permissions
 Users must have system permissions to read, write, and execute. 
@@ -105,7 +105,7 @@ Every command line code will have an input validation and an authentication with
 - String format check to prevent format attack
 - Command line number of inputs check, either single command line code or a batch file 
 - Each command line argument will check to ensure only expected characters are provided.
-- Limited error information. Return “Inserted” if the log has been successfully inserted and “invalid” if there was any problen while validating and authenticating the token. This limits hackers knowlege of how the program handled the input.
+- Limited error information. Return “Inserted” if the log has been successfully inserted and “invalid” or 255, depending on where the error occurred, if there was any problen while validating and authenticating the token. This limits hackers knowlege of how the program handled the input.
 
 ### File Access
 - Files will be encrypted with some standard encryption algorithm. Without the authentication token, it is impossible to access. 
