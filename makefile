@@ -1,3 +1,4 @@
+
 # Compiler and Flags
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
@@ -21,7 +22,7 @@ EXEC_LOGAPPEND = logAppend
 EXEC_LOGREAD = logRead
 
 # Build Targets
-all: $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+all: $(OBJ_DIR) $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
 
 $(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o
 	@echo "Compiling $(EXEC_LOGAPPEND)..."
@@ -39,11 +40,17 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 	@echo "Compiled $< successfully!"
 
+# Ensure build directory exists
+$(OBJ_DIR):
+	@echo "Creating build directory..."
+	mkdir -p $(OBJ_DIR)
+	@echo "Build directory created."
+
 # Clean up build files
 clean:
 	@echo "Cleaning up build files..."
-	rm -f build/*.o logAppend logRead
+	rm -rf $(OBJ_DIR)/*.o logAppend logRead
 	@echo "Clean up successful."
 
-.PHONY: all clean
+.PHONY: all clean $(OBJ_DIR)
 
