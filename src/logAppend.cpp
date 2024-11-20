@@ -262,6 +262,7 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
   std::fstream file(args.batchFile);
   std::string line;
 
+  int count = 0;
   while (std::getline(file, line)) {
     std::vector<std::string> tokens = tokenize(line);
     int argc = tokens.size();
@@ -275,12 +276,20 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
     try {
       LogAppendArgs newArgs(argc, argv.data());
 
-      // Push the newArgs to the output vector
-      output.push_back(newArgs);
+      if (!newArgs.isBatch && fileExistsAndIsReadable(newArgs.logFile)) {
+        count++;
+        output.push_back(newArgs);
+      } else {
+        std::cerr << "Skipping bad command in batch: must have readable "
+                     "logfile and can not be batch command"
+                  << std::endl;
+      }
 
     } catch (const std::exception &e) {
       std::cerr << "Skipping bad command in batch: " << e.what() << std::endl;
     }
+
+    std::cout << "Added " << count << " commands to the queue" << std::endl;
     return output;
   }
 
