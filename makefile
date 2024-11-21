@@ -29,7 +29,7 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
 
 # Specify the executables you want to build
-EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead
+EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead $(BIN_DIR)/generateTestData
 
 # Default target
 all: $(EXECUTABLES)
@@ -46,6 +46,12 @@ $(BIN_DIR)/logRead: $(OBJ_DIR)/logRead.o $(SHARED_OBJS)
 	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "Successfully created $@"
 
+# Rule for linking the genBatch executable
+$(BIN_DIR)/generateTestData: $(OBJ_DIR)/generateTestData.o
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "Successfully created $@"
+
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "Compiling $<..."
@@ -57,13 +63,6 @@ clean:
 	@echo "Cleaning build files..."
 	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 	@echo "Clean complete"
-
-# New rule to generate batch data
-genBatch: $(SRC_DIR)/generateTestData.cpp
-	@echo "Compiling and generating test data..."
-	@$(CXX) $(CXXFLAGS) $(INCLUDES) $< -o $(BIN_DIR)/generateTestData
-	@$(BIN_DIR)/generateTestData
-	@echo "Test data generated successfully."
 
 # Rule for the testData target that runs the genBatch rule
 testData: genBatch
