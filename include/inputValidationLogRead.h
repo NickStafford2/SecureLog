@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "utils.h"
-class LogAppendArgs {
+class LogReadArgs {
 public:
   std::string tokenDetails =
       "-K token Token used to authenticate the log. This token consists of an "
@@ -22,8 +22,8 @@ public:
       "contains sufficient entropy so that it cannot be guessed in a "
       "reasonable amount of time. If the log cannot be authenticated with the "
       "token (i.e., it is not the same token that was used to create the "
-      "file), then " integrity violation
-      " should be printed to stdout and 255 should be returned.";
+      "file), then \"integrity violation\" should be printed to stdout and 255 "
+      "should be returned.";
   std::string token = "";
 
   std::string printDetails =
@@ -90,7 +90,7 @@ public:
       participantType; // Whether the event is for an employee or guest
   std::string name = "";
 
-  LogAppendArgs(int argc, char *argv[]) {
+  LogReadArgs(int argc, char *argv[]) {
 
     std::cout << "\nCreateing LogAppendArgs from: " << argc << std::endl;
     // Print all arguments in argv
