@@ -360,13 +360,6 @@ void printHelp() {
 
 int main(int argc, char *argv[]) {
 
-  std::string testStr = "12345";
-  if (isNumeric(testStr)) {
-      std::cout << testStr << " is a valid number.\n";
-  } else {
-      std::cout << testStr << " is not a valid number.\n";
-  }
-  return 0;
 	if (argc == 3){
 		// run the batch command
 		check_command(argc, argv);
