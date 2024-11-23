@@ -32,7 +32,7 @@ SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/input
 EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead $(BIN_DIR)/generateTestData
 
 # Default target
-all: $(EXECUTABLES)
+all: build $(EXECUTABLES)
 
 # Rule for linking the logAppend executable
 $(BIN_DIR)/logAppend: $(OBJ_DIR)/logAppend.o $(SHARED_OBJS)
@@ -64,12 +64,16 @@ clean:
 	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 	@echo "Clean complete"
 
+build:
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(OBJ_DIR)
+
 # Rule for the testData target that runs the genBatch rule
 testData: genBatch
 	@echo "Test data generation complete."
 
 # Declare phony targets
-.PHONY: all clean genBatch testData
+.PHONY: all clean genBatch testData build
 
 # Include dependencies (generated automatically from source files)
 -include $(OBJS:.o=.d)
