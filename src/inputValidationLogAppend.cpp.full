@@ -1,7 +1,5 @@
-#pragma once
 #include <cassert>
 #include <cstring>
-#include <exception>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -11,7 +9,8 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
+#include "inputValidationLogAppend.h"
+
 class LogAppendArgs {
 public:
   std::string timestampDetails =
@@ -30,7 +29,7 @@ public:
       "appends to that log must use the same token. You may assume the token "
       "contains sufficient entropy that it cannot be guessed in a reasonable "
       "amount of time.";
-  std::string token = "";
+  std::string token;
 
   std::string employeeDetails =
       "-E employee-name Name of employee. Names are alphabetic characters "
@@ -88,8 +87,7 @@ public:
       "guest unless that employee or guest has previously entered that room. "
       "An employee or guest may only occupy one room at a time. If a room ID "
       "is not specified, the event is for the entire art gallery.";
-  int roomId = -1;
-  bool roomDeclared = false;
+  int roomId;
 
   std::string batchDetails =
       "-B file Specifies a batch file of commands. file contains one or more "
@@ -104,7 +102,7 @@ public:
       "processing the rest of the batch file. Here is an example (the last "
       "one).";
   bool isBatch = false;
-  std::string batchFile = "";
+  std::string batchFile;
 
   std::string logDetails =
       "log The name of the file containing the event log. The log’s filename "
@@ -114,29 +112,16 @@ public:
       "of the log such that queries from logread can be answered. If the log "
       "file cannot be created due to an invalid name, or any other error, "
       "logappend should print “invalid” and return 255.";
-  std::string logFile = "";
-
-  ParticipantType
-      participantType; // Whether the event is for an employee or guest
-  std::string name = "";
+  std::string logFile;
 
   LogAppendArgs(int argc, char *argv[]) {
-
-    std::cout << "\nCreateing LogAppendArgs from: " << argc << std::endl;
-    // Print all arguments in argv
-    std::cout << "Arguments:" << std::endl;
-    for (int i = 0; i < argc; ++i) {
-      std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
-    }
-
     if (argc < 2) {
       std::cerr << "Not enough arguments. Usage: logappend -T <timestamp> -K "
                    "<token> (-E | -G) (-A | "
                    "-L) [-R <room>]\n";
       std::cerr << "       logappend -B <batch-file>\n";
-      throw std::invalid_argument("");
     }
-
+    std::cout << "its working" << std::endl;
     std::vector<std::string> args;
     for (int i = 1; i < argc; ++i) {
       args.push_back(argv[i]);
@@ -164,15 +149,9 @@ public:
     if (!this->isBatch) {
       for (size_t i = 0; i < args.size(); ++i) {
         const std::string &arg = args[i];
-        // std::cout << arg << std::endl;
         if (arg == "-T") {
           if (i + 1 < args.size()) {
-            try {
-              this->timestamp = std::stoi(args[++i]);
-              validate_timestamp();
-            } catch (const std::exception e) {
-              throw std::invalid_argument("timestamp must be a number");
-            }
+            this->timestamp = std::stoi(args[++i]);
           } else {
             throw std::invalid_argument("Missing timestamp value");
           }
@@ -185,14 +164,14 @@ public:
           }
         } else if (arg == "-E") {
           if (i + 1 < args.size()) {
-            this->employeeName = args[++i];
+            this->employeeName = std::stoi(args[++i]);
             name_validation(employeeName);
           } else {
             throw std::invalid_argument("Missing employee name");
           }
         } else if (arg == "-G") {
           if (i + 1 < args.size()) {
-            this->guestName = args[++i];
+            this->guestName = std::stoi(args[++i]);
             name_validation(guestName);
           } else {
             throw std::invalid_argument("Missing guest name");
@@ -204,28 +183,20 @@ public:
         } else if (arg == "-R") {
           if (i + 1 < args.size()) {
             this->roomId = std::stoi(args[++i]);
-            this->roomDeclared = true;
             room_validation();
           } else {
             throw std::invalid_argument("Missing room ID value");
           }
-        } else if (i == args.size() - 1) {
-          // logFile is the last item
-          this->logFile = args[i];
-          file_validation();
         } else {
           throw std::invalid_argument("Unknown argument: " + arg);
         }
       }
-      this->validateNonBatch();
+      this->validate();
     }
-
-    std::cout << "Successfully Created LogAppendArgs" << std::endl;
-    this->print();
   }
 
   // Validate that the arguments are consistent
-  void validateNonBatch() {
+  bool validate() {
     // Basic validation rules
     if (timestamp < 0 && !isBatch) {
       throw std::invalid_argument(
@@ -252,24 +223,14 @@ public:
       file_validation();
     }
 
-    // std::cout << "sssss" << guestName << std::endl;
-    // std::cout << "iiiii" << employeeName << std::endl;
-    if (guestName.empty()) {
-      this->participantType = ParticipantType::EMPLOYEE;
-      this->name = employeeName;
-    } else {
-      this->participantType = ParticipantType::GUEST;
-      this->name = guestName;
-    }
-    // std::cout << "kkkk" << name << std::endl;
+    validate_timestamp();
+    room_validation();
+    return true;
   }
 
   // file_validation validates the name of the file
   // it does not validate if there is any file relates to that name
   void file_validation() {
-    if (logFile.empty()) {
-      throw std::invalid_argument("Invalid Filename");
-    }
     for (char n : logFile) {
       if (!std::isalnum(n) && n != '_' && n != '.') {
         std::cerr << "Invalid: Filename " << std::endl;
@@ -282,19 +243,74 @@ public:
   // batch_validation validates if the batch filename is correct
   // if does not check if there is any file or not
   void batch_validation() {
-    if (batchFile.empty()) {
-      throw std::invalid_argument("No Batch File");
-    }
     for (char c : batchFile) {
-      if (!std::isalnum(c) && c != '.' && c != '_') {
-        std::cerr << "Invalid batch file name" << std::endl;
+      if (!std::isalnum(c)) {
+        std::cerr << "Invalid: Batch file" << std::endl;
         exit(255);
       }
+
+      std::fstream file(batchFile);
+      if (!file.is_open()) {
+        std::cout << "Error opening the batch file!" << std::endl;
+        exit(255);
+      }
+      std::string line;
+      int count = 0;
+      while (std::getline(file, line)) {
+        if (line.empty() || line.find("-B") != std::string::npos) {
+          std::cerr << "Invalid command on line: " << count << ") " << line
+                    << std::endl;
+          return;
+        }
+        count++;
+      }
+      file.close();
+
+      // todo. check each line of the batch file and ensure that it has no other
+      // -B commands in it
     }
   }
+  // get_most_recent_time grabs the most recent time present in that file
+  int get_most_recent_time() {
+    // std::cout << "get most recent time is working" << std::endl;
+    int time = 1;
+    // if (argc == 9) {
+    //   std::ofstream writeFile(filename, std::ios::app);
+    //   writeFile.close();
+    // }
+
+    std::fstream file(logFile);
+    if (!file.is_open()) {
+      std::cout << "Error opening the file!" << std::endl;
+
+      exit(255);
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+      // std::cout << line << std::endl;
+      std::list<std::string> wordList;
+      std::istringstream iss(line);
+      std::string word;
+      // Split line into words and store each word in the list
+      while (iss >> word) {
+        wordList.push_back(word);
+      }
+      auto it = wordList.begin();
+      std::advance(it, 1);
+
+      if (std::stoi(*it) > time) {
+        time = std::stoi(*it);
+      }
+    }
+    file.close();
+    // std::cout << "most recent time is: " << time << std::endl;
+    return time;
+  }
+
   // room_validation validates the room and is under the integer constraints.
   void room_validation() {
-    if (roomId < 0 || roomId >= 1073741823) {
+    if (roomId < 1 || roomId > 1073741823) {
       std::cerr << "Invalid: Room" << std::endl;
       exit(255);
     }
@@ -302,25 +318,19 @@ public:
   }
 
   void name_validation(const std::string name) {
-    if (name.empty()) {
-      throw std::invalid_argument("Must enter a name.");
-    }
     for (char n : name) {
       if (!std::isalpha(n)) {
         std::cerr << "Invalid: Name" << std::endl;
         exit(255);
       }
     }
-    // std::cout << "Name is successfully validated" << std::endl;
+    std::cout << "Name is successfully validated" << std::endl;
     return;
   }
 
   // token_validation validates the secret key
   void token_validation() {
     // maybe make them choose a difficult key
-    if (token.empty()) {
-      throw std::invalid_argument("Must enter a token.");
-    }
     for (char c : token) {
       if (!std::isalnum(c)) {
         std::cerr << "Invalid: Token" << std::endl;
@@ -332,13 +342,143 @@ public:
 
   // validate_timestamp validates the time constraints.
   void validate_timestamp() {
+    int mostRecentTimestamp = get_most_recent_time();
     // std::cout << "this line" << std::endl;
-    if (timestamp < 1 || timestamp > 1073741823) {
+    if (timestamp <= mostRecentTimestamp || timestamp < 1 ||
+        timestamp > 1073741823) {
       std::cerr << "Invalid: Timestamp" << std::endl;
       exit(255);
     }
   }
 
-  void printHelp() const;
-  void print() const;
+  void printHelp() {
+    std::cout << "Usage: logappend [OPTIONS] <log>\n\n";
+
+    std::cout << "Description:\n";
+    std::cout << "logappend is a tool for appending events to a log. It is "
+                 "used to record "
+                 "the activities of employees and guests in a gallery, "
+                 "including their "
+                 "arrivals, departures, and movements between rooms. You can "
+                 "specify a "
+                 "timestamp and authentication token for each event, and the "
+                 "tool will either "
+                 "create a new log or append to an existing one. The options "
+                 "below provide "
+                 "various ways to filter and customize the log entries.\n\n";
+
+    std::cout << "Options:\n";
+    std::cout
+        << "  -T <timestamp>      Time the event is recorded, formatted as the "
+           "number of seconds since the gallery opened. Non-negative integer, "
+           "increasing order is required.\n";
+    std::cout << "  -K <token>          Token used to authenticate log access. "
+                 "Alphanumeric.\n";
+    std::cout << "  -E <employee-name>   Employee name. Alphabetic characters "
+                 "only, case-sensitive.\n";
+    std::cout << "  -G <guest-name>      Guest name. Alphabetic characters "
+                 "only, case-sensitive.\n";
+    std::cout << "  -A                   Indicates an arrival event. Can be "
+                 "used with -E, -G, and -R.\n";
+    std::cout << "  -L                   Indicates a departure event. Can be "
+                 "used with -E, -G, and -R.\n";
+    std::cout << "  -R <room-id>         Room ID for the event. Non-negative "
+                 "integer, no spaces.\n";
+    std::cout << "  <log>                The name of the log file used for "
+                 "recording events. "
+                 "Alphanumeric, underscores, and periods allowed.\n";
+    std::cout << "  -B <file>            Specifies a batch file containing "
+                 "multiple commands.\n\n";
+
+    std::cout << "Examples:\n";
+    std::cout << "  logappend -T <timestamp> -K <token> (-E <name> | -G "
+                 "<name>) (-A | -L) [-R <room-id>] <log>\n";
+    std::cout << "  logappend -B <batch-file>\n\n";
+
+    std::cout << "Note:\n";
+    std::cout << "  - When using the -R option, the employee or guest must "
+                 "enter the gallery first before entering a room.\n";
+    std::cout << "  - The -T timestamp must always be greater than the "
+                 "previous timestamp to avoid inconsistency.\n";
+    std::cout << "  - If the log cannot be created or an invalid name is used, "
+                 "the command will print \"invalid\" and return 255.\n";
+    std::cout << "  - If a batch file is specified, each command in the file "
+                 "will be processed in order. If one command fails, the rest "
+                 "will continue to be processed.\n";
+  }
 };
+
+// // Example usage
+// int main(int argc, char* argv[]) {
+
+//     return 0;
+// }
+// void parseArgs(int argc, char *argv[]) {
+//
+//
+//
+
+// class LogAppendParser {
+// public:
+//   LogAppendArgs parse(int argc, char *argv[]) {
+//     LogAppendArgs args;
+//     std::vector<std::string> arguments(argv + 1, argv + argc);
+//
+//     for (size_t i = 0; i < arguments.size(); ++i) {
+//       const std::string &arg = arguments[i];
+//
+//       if (arg == "-B") {
+//         args.isBatch = true;
+//         if (i + 1 < arguments.size()) {
+//           args.batchFile = arguments[++i];
+//         } else {
+//           throw std::invalid_argument("Missing batch file argument for -B");
+//         }
+//         continue;
+//       }
+//
+//       if (!args.isBatch) {
+//         if (arg == "-T") {
+//           if (i + 1 < arguments.size()) {
+//             try {
+//               args.timestamp = std::stoi(arguments[++i]);
+//               if (args.timestamp < 0) {
+//                 throw std::invalid_argument("Timestamp must be
+//                 non-negative");
+//               }
+//             } catch (const std::exception &e) {
+//               throw std::invalid_argument("Invalid timestamp format");
+//             }
+//           } else {
+//             throw std::invalid_argument("Missing timestamp value");
+//           }
+//         } else if (arg == "-K") {
+//           if (i + 1 < arguments.size()) {
+//             args.token = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing token value");
+//           }
+//         } else if (arg == "-E") {
+//           args.isEmployee = true;
+//         } else if (arg == "-G") {
+//           args.isGuest = true;
+//         } else if (arg == "-A") {
+//           args.isArrival = true;
+//         } else if (arg == "-L") {
+//           args.isLeaving = true;
+//         } else if (arg == "-R") {
+//           if (i + 1 < arguments.size()) {
+//             args.roomId = arguments[++i];
+//           } else {
+//             throw std::invalid_argument("Missing room ID value");
+//           }
+//         } else {
+//           throw std::invalid_argument("Unknown argument: " + arg);
+//         }
+//       }
+//     }
+//
+//     args.validate();
+//     return args;
+//   }
+// };

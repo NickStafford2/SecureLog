@@ -1,56 +1,76 @@
 # Makefile
-# Compiler and Flags
-CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 
-# OpenSSL Libraries
-OPENSSL_LIBS = -lssl -lcrypto
+# Compiler and Flags
+CXX := clang++
+CXXFLAGS := -Wall -Wextra -std=c++11
+CXXFLAGS += -I/usr/include/c++/11 \
+            -I/usr/include/x86_64-linux-gnu/c++/11 \
+            -I/usr/include/c++/11/backward \
+            -I/usr/lib/gcc/x86_64-linux-gnu/11/include \
+            -I/usr/local/include \
+            -I/usr/include/x86_64-linux-gnu \
+            -I/usr/include
+#
+LDFLAGS := -L/usr/lib/gcc/x86_64-linux-gnu/11 -lcrypto
+INCLUDES := -Iinclude -I/usr/include/openssl
 
 # Directories
-SRC_DIR = include
-OBJ_DIR = build
-INCLUDE_DIR = include
+SRC_DIR := src
+OBJ_DIR := build
+BIN_DIR := bin
 
-# Source Files
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+# Find all source files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 
-# Object Files (create object files in the 'build' directory)
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+# Generate object file names dynamically from source files
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-# Executable Names
-EXEC_LOGAPPEND = logAppend
-EXEC_LOGREAD = logRead
+# Shared object files for both executables
+SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
 
-# Build Targets
-all: $(OBJ_DIR) $(EXEC_LOGAPPEND) $(EXEC_LOGREAD)
+# Specify the executables you want to build
+EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead $(BIN_DIR)/generateTestData
 
-$(EXEC_LOGAPPEND): $(OBJ_DIR)/logAppend.o $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o
-	@echo "Compiling $(EXEC_LOGAPPEND)..."
-	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
-	@echo "$(EXEC_LOGAPPEND) compiled successfully!"
+# Default target
+all: $(EXECUTABLES)
 
-$(EXEC_LOGREAD): $(OBJ_DIR)/logRead.o $(OBJ_DIR)/crypto.o
-	@echo "Compiling $(EXEC_LOGREAD)..."
-	$(CXX) -o $@ $^ $(OPENSSL_LIBS)
-	@echo "$(EXEC_LOGREAD) compiled successfully!"
+# Rule for linking the logAppend executable
+$(BIN_DIR)/logAppend: $(OBJ_DIR)/logAppend.o $(SHARED_OBJS)
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "Successfully created $@"
 
-# Compile Source Files to Object Files
+# Rule for linking the logRead executable
+$(BIN_DIR)/logRead: $(OBJ_DIR)/logRead.o $(SHARED_OBJS)
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "Successfully created $@"
+
+# Rule for linking the genBatch executable
+$(BIN_DIR)/generateTestData: $(OBJ_DIR)/generateTestData.o
+	@echo "Linking $@..."
+	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+	@echo "Successfully created $@"
+
+# Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling $< to $@..."
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-	@echo "Compiled $< successfully!"
+	@echo "Compiling $<..."
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "Successfully compiled $<"
 
-# Ensure build directory exists
-$(OBJ_DIR):
-	@echo "Creating build directory..."
-	mkdir -p $(OBJ_DIR)
-	@echo "Build directory created."
-
-# Clean up build files
+# Clean build files
 clean:
-	@echo "Cleaning up build files..."
-	rm -rf $(OBJ_DIR)/*.o logAppend logRead
-	@echo "Clean up successful."
+	@echo "Cleaning build files..."
+	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
+	@echo "Clean complete"
 
-.PHONY: all clean $(OBJ_DIR)
+# Rule for the testData target that runs the genBatch rule
+testData: genBatch
+	@echo "Test data generation complete."
+
+# Declare phony targets
+.PHONY: all clean genBatch testData
+
+# Include dependencies (generated automatically from source files)
+-include $(OBJS:.o=.d)
 
