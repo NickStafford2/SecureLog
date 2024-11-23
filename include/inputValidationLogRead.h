@@ -38,7 +38,7 @@ public:
       "followed by a comma-separated list of guests and employees. Room IDs "
       "should be printed in ascending integer order, all guest/employee names "
       "should be printed in ascending lexicographic string order.";
-  std::string printSymbol = "-S";
+  bool isPrintState = false;
 
   std::string roomDetails =
       "-R Print the current state of the log to stdout. The state should be "
@@ -52,7 +52,7 @@ public:
       "followed by a comma-separated list of guests and employees. Room IDs "
       "should be printed in ascending integer order, all guest/employee names "
       "should be printed in ascending lexicographic string order.";
-  std::string roomSymbol = "-S";
+  bool isRoomPrint = false;
 
   std::string timeDetails =
       "-T Gives the total time spent in the gallery by an employee or guest. "
@@ -74,11 +74,11 @@ public:
 
   std::string EmployeeDetails =
       "-E Employee name. May be specified multiple times when used with -I.";
-  std::string EmployeeSymbol = "-E";
+  std::string employeeName;
 
   std::string GuestDetails =
       "-G Guest name. May be specified multiple times when used with -I.";
-  std::string GSymbol = "-G";
+  std::string guestName;
 
   std::string logDetails =
       "log The name of the file log used for recording events. The filename "
@@ -92,7 +92,7 @@ public:
 
   LogReadArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreateing LogAppendArgs from: " << argc << std::endl;
+    std::cout << "\nCreateing LogReadArgs from: " << argc << std::endl;
     // Print all arguments in argv
     std::cout << "Arguments:" << std::endl;
     for (int i = 0; i < argc; ++i) {
@@ -100,11 +100,7 @@ public:
     }
 
     if (argc < 2) {
-      std::cerr << "Not enough arguments. Usage: logappend -T <timestamp> -K "
-                   "<token> (-E | -G) (-A | "
-                   "-L) [-R <room>]\n";
-      std::cerr << "       logappend -B <batch-file>\n";
-      throw std::invalid_argument("");
+      throw std::invalid_argument("Not enough arguments. \n");
     }
 
     std::vector<std::string> args;
@@ -114,125 +110,46 @@ public:
 
     for (size_t i = 0; i < args.size(); ++i) {
       const std::string &arg = args[i];
-
-      if (arg == "-B") {
-        this->isBatch = true;
+      // std::cout << arg << std::endl;
+      if (arg == "-K") {
         if (i + 1 < args.size()) {
-          this->batchFile = args[++i];
-          this->batch_validation();
+          this->token = args[++i];
+          token_validation();
         } else {
-          throw std::invalid_argument("Missing batch file argument for -B");
+          throw std::invalid_argument("Missing token value");
         }
-      } else if (arg == "--help") {
-        printHelp();
-        throw std::invalid_argument("");
-      }
-    }
-    if (this->isBatch && args.size() > 3) {
-      throw std::invalid_argument("Too many arguments for -B");
-    }
-    if (!this->isBatch) {
-      for (size_t i = 0; i < args.size(); ++i) {
-        const std::string &arg = args[i];
-        // std::cout << arg << std::endl;
-        if (arg == "-T") {
-          if (i + 1 < args.size()) {
-            try {
-              this->timestamp = std::stoi(args[++i]);
-              validate_timestamp();
-            } catch (const std::exception e) {
-              throw std::invalid_argument("timestamp must be a number");
-            }
-          } else {
-            throw std::invalid_argument("Missing timestamp value");
-          }
-        } else if (arg == "-K") {
-          if (i + 1 < args.size()) {
-            this->token = args[++i];
-            token_validation();
-          } else {
-            throw std::invalid_argument("Missing token value");
-          }
-        } else if (arg == "-E") {
-          if (i + 1 < args.size()) {
-            this->employeeName = args[++i];
-            name_validation(employeeName);
-          } else {
-            throw std::invalid_argument("Missing employee name");
-          }
-        } else if (arg == "-G") {
-          if (i + 1 < args.size()) {
-            this->guestName = args[++i];
-            name_validation(guestName);
-          } else {
-            throw std::invalid_argument("Missing guest name");
-          }
-        } else if (arg == "-A") {
-          this->isArrival = true;
-        } else if (arg == "-L") {
-          this->isLeaving = true;
-        } else if (arg == "-R") {
-          if (i + 1 < args.size()) {
-            this->roomId = std::stoi(args[++i]);
-            this->roomDeclared = true;
-            room_validation();
-          } else {
-            throw std::invalid_argument("Missing room ID value");
-          }
-        } else if (i == args.size() - 1) {
-          // logFile is the last item
-          this->logFile = args[i];
-          file_validation();
+      } else if (arg == "-R") {
+        this->isRoomPrint = true;
+      } else if (arg == "-S") {
+        this->isPrintState = true;
+      } else if (arg == "-E") {
+        if (i + 1 < args.size()) {
+          this->employeeName = args[++i];
+          name_validation(employeeName);
         } else {
-          throw std::invalid_argument("Unknown argument: " + arg);
+          throw std::invalid_argument("Missing employee name");
         }
+      } else if (arg == "-G") {
+        if (i + 1 < args.size()) {
+          this->guestName = args[++i];
+          name_validation(guestName);
+        } else {
+          throw std::invalid_argument("Missing guest name");
+        }
+      } else if (i == args.size() - 1) {
+        // logFile is the last item
+        this->logFile = args[i];
+        file_validation();
+      } else {
+        throw std::invalid_argument("Unknown argument: " + arg);
       }
-      this->validateNonBatch();
     }
 
-    std::cout << "Successfully Created LogAppendArgs" << std::endl;
+    std::cout << "Successfully Created LogReadArgs" << std::endl;
     this->print();
   }
 
   // Validate that the arguments are consistent
-  void validateNonBatch() {
-    // Basic validation rules
-    if (timestamp < 0 && !isBatch) {
-      throw std::invalid_argument(
-          "Timestamp is required for non-batch operations");
-    }
-    if (token.empty()) {
-      throw std::invalid_argument("Authentication token is required");
-    }
-    if (!isBatch) {
-      if (employeeName.empty() && guestName.empty()) {
-        throw std::invalid_argument(
-            "Must specify either employee (-E) or guest (-G)");
-      }
-      if (!employeeName.empty() && !guestName.empty()) {
-        throw std::invalid_argument("Cannot be both employee and guest");
-      }
-      if (!isArrival && !isLeaving) {
-        throw std::invalid_argument(
-            "Must specify either arrival (-A) or leaving (-L)");
-      }
-      if (isArrival && isLeaving) {
-        throw std::invalid_argument("Cannot be both arriving and leaving");
-      }
-      file_validation();
-    }
-
-    // std::cout << "sssss" << guestName << std::endl;
-    // std::cout << "iiiii" << employeeName << std::endl;
-    if (guestName.empty()) {
-      this->participantType = ParticipantType::EMPLOYEE;
-      this->name = employeeName;
-    } else {
-      this->participantType = ParticipantType::GUEST;
-      this->name = guestName;
-    }
-    // std::cout << "kkkk" << name << std::endl;
-  }
 
   // file_validation validates the name of the file
   // it does not validate if there is any file relates to that name
@@ -247,28 +164,6 @@ public:
       }
     }
     // std::cout << "Filename is successfully validated" << std::endl;
-  }
-
-  // batch_validation validates if the batch filename is correct
-  // if does not check if there is any file or not
-  void batch_validation() {
-    if (batchFile.empty()) {
-      throw std::invalid_argument("No Batch File");
-    }
-    for (char c : batchFile) {
-      if (!std::isalnum(c) && c != '.' && c != '_') {
-        std::cerr << "Invalid batch file name" << std::endl;
-        exit(255);
-      }
-    }
-  }
-  // room_validation validates the room and is under the integer constraints.
-  void room_validation() {
-    if (roomId < 0 || roomId >= 1073741823) {
-      std::cerr << "Invalid: Room" << std::endl;
-      exit(255);
-    }
-    // std::cout << "Room validation successful!" << std::endl;
   }
 
   void name_validation(const std::string name) {
@@ -298,15 +193,6 @@ public:
       }
     }
     return;
-  }
-
-  // validate_timestamp validates the time constraints.
-  void validate_timestamp() {
-    // std::cout << "this line" << std::endl;
-    if (timestamp < 1 || timestamp > 1073741823) {
-      std::cerr << "Invalid: Timestamp" << std::endl;
-      exit(255);
-    }
   }
 
   void printHelp() const;

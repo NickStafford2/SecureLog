@@ -163,7 +163,36 @@ void processBigArgument(const std::string &filename, const std::string &key,
 }
 
 int main(int argc, char *argv[]) {
-  try {
-    // LogReadArgs
+  // all the code goes here
+  std::string filename;
+  if (std::string(argv[3]) == "-T" || std::string(argv[3]) == "-I") {
+    std::cout << "Unimplemented!" << std::endl;
+    std::exit(255);
+  } else if (argc == 5 || argc == 7) {
+    if (argc == 5) {
+      // std::cout << "this line is working" << std::endl;
+      check_command(argc, argv);
+      filename = file_validation(argv[4]) + ".txt";
+      // std::cout << filename <<std::endl;
+      token_validation(argv[2]);
+
+      processArgument(filename, std::string(argv[2]));
+
+    } else if (argc == 7) {
+      check_command(argc, argv);
+      filename = file_validation(argv[6]) + ".txt";
+      token_validation(argv[2]);
+      name_validation(argv[5]);
+
+      // processBigArguments(filename, token, (-E or -G)), name)
+      processBigArgument(filename, std::string(argv[2]), std::string(argv[4]),
+                         std::string(argv[5]));
+    }
+  } else {
+    std::cout << "INVALID!" << std::endl;
+    std::cout << "Program exited with incorrect arguments! Please provide "
+                 "correct number of arguments!"
+              << std::endl;
+    std::exit(255);
   }
 }
