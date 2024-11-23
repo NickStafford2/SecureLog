@@ -76,6 +76,7 @@ public:
   static const int GALLERY_ID = -1;
   static const int UNKNOWN = -2;
   static const int ERROR = -3;
+  static const std::string LOG_DIR;
   Gallery() = default;
 
   int getEmployeeRoom(const std::string &employee) const {
@@ -255,13 +256,15 @@ public:
   // Function to save to a file
   void saveToFile(const std::string &filename, const std::string &key) const {
 
-    std::ofstream outFile(filename);
+    std::string fullPath = Gallery::LOG_DIR + filename;
+    std::cout << "Gallery data saving to " << fullPath << std::endl;
+    std::ofstream outFile(fullPath);
     if (outFile) {
       std::string message = serialize();
       std::string encrypted = CryptoUtils::encrypt(message, key);
       outFile << encrypted;
       outFile.close();
-      std::cout << "Gallery data saved to " << filename << std::endl;
+      std::cout << "Gallery data saved to " << fullPath << std::endl;
     } else {
       throw std::ios_base::failure("Failed to open file for writing.");
     }
@@ -270,7 +273,9 @@ public:
   // Function to load from a file
   static Gallery loadFromFile(const std::string &filename,
                               const std::string &key) {
-    std::ifstream inFile(filename);
+    std::string fullPath = Gallery::LOG_DIR + filename;
+    std::cout << "Gallery data reading from " << fullPath << std::endl;
+    std::ifstream inFile(fullPath);
     if (inFile) {
       std::stringstream buffer;
       buffer << inFile.rdbuf();
@@ -278,6 +283,7 @@ public:
       std::string encrypted = buffer.str();
       std::string decrypted = CryptoUtils::decrypt(encrypted, key);
       return deserialize(decrypted);
+      std::cout << "Gallery read from " << fullPath << std::endl;
     } else {
       throw std::ios_base::failure("Failed to open file for reading.");
     }

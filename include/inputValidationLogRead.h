@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <cassert>
 #include <cstring>
 #include <exception>
@@ -92,7 +91,7 @@ public:
 
   LogReadArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreateing LogReadArgs from: " << argc << std::endl;
+    std::cout << "\nCreating LogReadArgs from: " << argc << " arguments"<< std::endl;
     // Print all arguments in argv
     std::cout << "Arguments:" << std::endl;
     for (int i = 0; i < argc; ++i) {

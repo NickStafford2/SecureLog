@@ -16,6 +16,7 @@ INCLUDES := -Iinclude -I/usr/include/openssl
 
 # Directories
 SRC_DIR := src
+LOG_DIR := logs
 OBJ_DIR := build
 BIN_DIR := bin
 
@@ -26,7 +27,7 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Shared object files for both executables
-SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o
+SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o $(OBJ_DIR)/inputValidationLogRead.o $(OBJ_DIR)/state.o
 
 # Specify the executables you want to build
 EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead $(BIN_DIR)/generateTestData
@@ -66,11 +67,22 @@ clean:
 
 build:
 	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(LOG_DIR)
 	@mkdir -p $(OBJ_DIR)
 
 # Rule for the testData target that runs the genBatch rule
 testData: genBatch
 	@echo "Test data generation complete."
+
+testAppend:
+	@TIMESTAMP=$(shell date +%s | awk '{print substr($$0, 2)}') && \
+	echo $$TIMESTAMP && \
+	./$(BIN_DIR)/logAppend -T $$TIMESTAMP -K password -E nick -A testAppendAuto.txt
+
+testRead:
+	./$(BIN_DIR)/logRead -K password -E nick testAppendAuto.txt
+
+
 
 # Declare phony targets
 .PHONY: all clean genBatch testData build

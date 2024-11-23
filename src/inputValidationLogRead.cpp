@@ -1,3 +1,4 @@
+// inputValidationLogRead.cpp
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -53,3 +54,33 @@ void printHelp() {
   std::cout << "  - The -T option is optional, and if used, it will provide "
                "the time spent in the gallery by the person(s) specified.\n";
 }
+void LogReadArgs::print() const {
+  std::cout << "LogAppendArgs {" << std::endl;
+
+  // Print token
+  std::cout << "  token: " << (token.empty() ? "N/A" : token) << std::endl;
+
+  // Print employeeName
+  std::cout << "  employeeName: "
+            << (employeeName.empty() ? "N/A" : employeeName) << std::endl;
+
+  // Print guestName
+  std::cout << "  guestName: " << (guestName.empty() ? "N/A" : guestName)
+            << std::endl;
+
+  // Print logFile
+  std::cout << "  logFile: " << (logFile.empty() ? "N/A" : logFile)
+            << std::endl;
+
+  // Print logFile
+  // std::cout << "  ParticipantType: " <<
+  // participantTypeToString(participantType)
+  //           << std::endl;
+
+  // Print name
+  std::cout << "  name: " << name << std::endl;
+
+  std::cout << "}" << std::endl;
+}
+
+

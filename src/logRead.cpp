@@ -10,6 +10,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "inputValidationLogRead.h"
+
 // check all the options like -K -S -R -E -G
 void check_command(int argc,
                    char *argv[]) { // ./logread -K secret -R -E Fred log1
@@ -59,6 +61,7 @@ void name_validation(const std::string &name) {
   return;
 }
 
+
 // processArgument prints all the names of employees and guests that went to the
 // gallery as well as each person that entered in a particular room
 void processArgument(const std::string &filename, const std::string &key) {
@@ -104,25 +107,27 @@ void processArgument(const std::string &filename, const std::string &key) {
     }
   }
 }
-file.close();
+// file.close();
+//
+// // printing names of people
+// for (const auto &name : namesPeople) {
+//   std::cout << name << std::endl;
+// }
 
-// printing names of people
-for (const auto &name : namesPeople) {
-  std::cout << name << std::endl;
-}
+// // printing room assignments
+// for (const auto &room : roomAssignments) {
+//   std::cout << room.first << ": ";
+//   for (size_t i = 0; i < room.second.size(); ++i) {
+//     std::cout << room.second[i];
+//     if (i < room.second.size() - 1) {
+//       std::cout << ",";
+//     }
+//   }
+//   std::cout << std::endl;
+// }
+// }
 
-// printing room assignments
-for (const auto &room : roomAssignments) {
-  std::cout << room.first << ": ";
-  for (size_t i = 0; i < room.second.size(); ++i) {
-    std::cout << room.second[i];
-    if (i < room.second.size() - 1) {
-      std::cout << ",";
-    }
-  }
-  std::cout << std::endl;
-}
-}
+
 // processBigArguments(filename, key, (-E or -G), name);
 // processBigArguments prints all the room that a person went
 void processBigArgument(const std::string &filename, const std::string &key,
@@ -165,5 +170,12 @@ void processBigArgument(const std::string &filename, const std::string &key,
 int main(int argc, char *argv[]) {
   try {
     // LogReadArgs
+    LogReadArgs args(argc, argv);
+    std::cout << "First round of validation complete" << std::endl;
+    args.print();
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return 255;
   }
 }

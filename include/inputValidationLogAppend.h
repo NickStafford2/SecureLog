@@ -122,7 +122,8 @@ public:
 
   LogAppendArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreateing LogAppendArgs from: " << argc << std::endl;
+    std::cout << "\nCreating LogAppendArgs from: " << argc << " arguments"
+              << std::endl;
     // Print all arguments in argv
     std::cout << "Arguments:" << std::endl;
     for (int i = 0; i < argc; ++i) {
@@ -334,7 +335,7 @@ public:
   void validate_timestamp() {
     // std::cout << "this line" << std::endl;
     if (timestamp < 1 || timestamp > 1073741823) {
-      std::cerr << "Invalid: Timestamp" << std::endl;
+      std::cerr << "Invalid: Timestamp" << timestamp << "\"" << std::endl;
       exit(255);
     }
   }
