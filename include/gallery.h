@@ -27,8 +27,6 @@ private:
   std::unordered_map<std::string, std::vector<int>> guests;
   std::vector<Event> events;
 
-  int mostRecentTimestamp = 0; // To keep track of the most recent timestamp
-
 public:
   static const int GALLERY_ID = -1;
   static const int UNKNOWN = -2;
@@ -39,6 +37,13 @@ public:
   void printTimeFor(std::string name, ParticipantType participantType);
 
   int getNumberOfEvents() { return events.size(); }
+
+  int getMostRecentTimestamp() {
+    if (events.size()) {
+      return events.back().timestamp;
+    }
+    return -1;
+  }
 
   std::vector<int> getEmployeeRooms(const std::string &guest) const {
     return employees.at(guest);
@@ -58,30 +63,22 @@ public:
 
   // Validate timestamp to be larger than the most recent one
   void validateTimestamp(int timestamp) {
-    if (timestamp <= mostRecentTimestamp) {
+    if (timestamp <= getMostRecentTimestamp()) {
       throw std::invalid_argument(
           "Timestamp must be larger than the most recent timestamp.");
     }
-    mostRecentTimestamp = timestamp; // Update the most recent timestamp
   }
   // Move a person based on an event
   void move(const Event &event) {
     // std::cout << "Moving " << event.person << " from " << event.from_location
     //           << " to " << event.to_location << std::endl;
-    std::cout << mostRecentTimestamp << "- vs -" << event.timestamp
-              << std::endl;
     validateTimestamp(event.timestamp);
 
     int currentRoom = UNKNOWN;
 
     // If the event is for an employee, get their room, else for a guest
     if (event.participantType == ParticipantType::EMPLOYEE) {
-
-      std::cout << "employee" << std::endl;
-
       if (employees.find(event.person) != employees.end()) {
-        std::cout << "employee not exist" << std::endl;
-
         currentRoom = getEmployeeRoom(event.person);
       }
     } else if (event.participantType == ParticipantType::GUEST) {
@@ -89,7 +86,6 @@ public:
         currentRoom = getGuestRoom(event.person);
       }
     }
-    std::cout << "77777777777777777777777" << std::endl;
 
     // If the person is not in the 'from_location' room, throw an error
     if (currentRoom != event.from_location) {
