@@ -61,7 +61,6 @@ void name_validation(const std::string &name) {
   return;
 }
 
-
 // processArgument prints all the names of employees and guests that went to the
 // gallery as well as each person that entered in a particular room
 void processArgument(const std::string &filename, const std::string &key) {
@@ -127,7 +126,6 @@ void processArgument(const std::string &filename, const std::string &key) {
 // }
 // }
 
-
 // processBigArguments(filename, key, (-E or -G), name);
 // processBigArguments prints all the room that a person went
 void processBigArgument(const std::string &filename, const std::string &key,
@@ -173,6 +171,15 @@ int main(int argc, char *argv[]) {
     LogReadArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
     args.print();
+    // try {
+    //   Gallery loadedGallery = Gallery::loadFromFile(args.logFile,
+    //   args.token); std::cout << "Successfully loaded gallary data with "
+    //             << loadedGallery.getNumberOfEvents() << " events." <<
+    //             std::endl;
+    //   // loadedGallery.printGallery();
+    // } catch (const std::exception &e) {
+    //   std::cerr << "Error: " << e.what() << std::endl;
+    // }
 
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;

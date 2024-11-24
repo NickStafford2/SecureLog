@@ -125,10 +125,10 @@ public:
     std::cout << "\nCreating LogAppendArgs from: " << argc << " arguments"
               << std::endl;
     // Print all arguments in argv
-    std::cout << "Arguments:" << std::endl;
-    for (int i = 0; i < argc; ++i) {
-      std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
-    }
+    // std::cout << "Arguments:" << std::endl;
+    // for (int i = 0; i < argc; ++i) {
+    //   std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+    // }
 
     if (argc < 2) {
       std::cerr << "Not enough arguments. Usage: logappend -T <timestamp> -K "
@@ -222,7 +222,7 @@ public:
     }
 
     std::cout << "Successfully Created LogAppendArgs" << std::endl;
-    this->print();
+    // this->print();
   }
 
   // Validate that the arguments are consistent

@@ -75,9 +75,12 @@ testData: genBatch
 	@echo "Test data generation complete."
 
 testAppend:
-	@TIMESTAMP=$(shell date +%s | awk '{print substr($$0, 2)}') && \
-	echo $$TIMESTAMP && \
-	./$(BIN_DIR)/logAppend -T $$TIMESTAMP -K password -E nick -A testAppendAuto.txt
+	# @TIMESTAMP=$(shell date +%s | awk '{print substr($$0, 2)}') && \
+	# @TIMESTAMP=$(shell date +%s | awk '{print substr($$0, 2)}') && \
+	# echo $$TIMESTAMP && \
+	# ./$(BIN_DIR)/logAppend -T $$TIMESTAMP -K password -E nick -A testAppendAuto.txt
+	@rm -rf logs/nsTest1.txt && \
+	./$(BIN_DIR)/logAppend -B nsTestBatch.txt
 
 testRead:
 	./$(BIN_DIR)/logRead -K password -E nick testAppendAuto.txt

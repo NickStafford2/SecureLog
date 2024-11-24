@@ -29,17 +29,21 @@ std::vector<std::string> tokenize(const std::string &line) {
 
 std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
   std::vector<LogAppendArgs> output;
-  std::fstream file(args.batchFile);
+  std::string fullPath = "batches/" + args.batchFile;
+  std::cout << "Reading batches from \"" << fullPath << "\"" << std::endl;
+  std::fstream file(fullPath);
   std::string line;
 
   int count = 0;
   while (std::getline(file, line)) {
+    std::cout << "  Creating string from " << line << std::endl;
     std::vector<std::string> tokens = tokenize(line);
     int argc = tokens.size();
 
     // Create an array of char* for argv
     std::vector<char *> argv(argc);
 
+    // std::cout << "Creating string from " << (std::string) argv << std::endl;
     for (int i = 0; i < argc; ++i) {
       argv[i] = &tokens[i][0]; // Convert string to char*
     }
@@ -58,11 +62,9 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
     } catch (const std::exception &e) {
       std::cerr << "Skipping bad command in batch: " << e.what() << std::endl;
     }
-
-    std::cout << "Added " << count << " commands to the queue" << std::endl;
-    return output;
   }
 
+  std::cout << "Added " << count << " commands to the queue" << std::endl;
   file.close();
   return output;
 }
@@ -83,7 +85,7 @@ void execute(LogAppendArgs args) {
   int fromLocation = Gallery::ERROR;
   int toLocation = Gallery::ERROR;
 
-  args.print();
+  // args.print();
   if (args.isArrival) {
     if (args.roomDeclared) {
       toLocation = args.roomId;
@@ -110,36 +112,43 @@ void execute(LogAppendArgs args) {
   Event event(args.timestamp, args.name, fromLocation, toLocation,
               args.participantType);
   // std::cout << event << std::endl;
-  event.printEvent();
-  Gallery gallery;
+  std::cout << "Created new event:" << std::endl;
+  // event.printEvent();
+
+  Gallery gallery = Gallery::loadOrCreate(args.logFile, args.token);
+
   gallery.move(event);
   gallery.saveToFile(args.logFile, args.token);
   // Load the gallery data back from the file
-  try {
-    Gallery loadedGallery = Gallery::loadFromFile(args.logFile, args.token);
-    std::cout << "Successfully loaded gallary data: " << std::endl;
-    loadedGallery.printGallery();
-  } catch (const std::exception &e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-  }
+  // try {
+  //   Gallery loadedGallery = Gallery::loadFromFile(args.logFile, args.token);
+  //   std::cout << "Successfully loaded gallary data with "
+  //             << loadedGallery.getNumberOfEvents() << " events." <<
+  //             std::endl;
+  //   // loadedGallery.printGallery();
+  // } catch (const std::exception &e) {
+  //   std::cerr << "Error: " << e.what() << std::endl;
+  // }
 }
 
 int main(int argc, char *argv[]) {
   try {
     LogAppendArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
-    args.print();
+    // args.print();
 
     std::vector<LogAppendArgs> toExecute = {};
     if (args.isBatch) {
       auto batch = readBatches(args);
-      std::cout << "All Batch arguments read. Executing batch now. ";
+      std::cout << "All batch arguments read. " << batch.size()
+                << " items in batch.\n";
       toExecute.insert(toExecute.end(), batch.begin(), batch.end());
     } else {
       toExecute.push_back(args);
     }
 
     for (size_t i = 0; i < toExecute.size(); ++i) {
+      std::cout << "Executing command " << i << std::endl;
       LogAppendArgs command = toExecute[i];
       try {
         execute(command);
@@ -147,6 +156,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: " << e.what() << std::endl;
       }
     }
+    std::cout << "LogAppend complete" << std::endl;
     return 1;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;

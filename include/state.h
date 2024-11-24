@@ -31,8 +31,8 @@ public:
         participantType(type) {}
 
   // Method to print the event details
-  void printEvent() const {
-    std::cout << "Timestamp: " << timestamp << ", Person: " << person
+  void printEvent(std::string s = "\t  ") const {
+    std::cout << s << "Timestamp: " << timestamp << ", Person: " << person
               << ", From Location: " << from_location
               << ", To Location: " << to_location << ", Type: "
               << (participantType == ParticipantType::EMPLOYEE ? "Employee"
@@ -86,6 +86,8 @@ public:
     return UNKNOWN;
   }
 
+  int getNumberOfEvents() { return events.size(); }
+
   int getGuestRoom(const std::string &guest) const {
     if (guests.find(guest) != guests.end()) {
       return guests.at(guest);
@@ -102,6 +104,8 @@ public:
   }
   // Move a person based on an event
   void move(const Event &event) {
+    std::cout << "Moving " << event.person << " from " << event.from_location
+              << " to " << event.to_location << std::endl;
     validateTimestamp(event.timestamp);
 
     int currentRoom = UNKNOWN;
@@ -115,8 +119,10 @@ public:
 
     // If the person is not in the 'from_location' room, throw an error
     if (currentRoom != event.from_location) {
+      std::cerr << currentRoom << " != " << event.from_location << std::endl;
       throw std::runtime_error("Error: " + event.person +
-                               " is not in the from_location.");
+                               " is not in the from_location: "); // +
+      // event.from_location + " " + event.person + " was in " + currentRoom);
     }
 
     if (event.to_location != Gallery::GALLERY_ID &&
@@ -167,25 +173,31 @@ public:
 
   // Function to print out the gallery's current state
   void printGallery() const {
-    std::cout << "Employees: \n";
+    std::cout << "Printing Gallary: "
+                 "=================================================\n";
+    std::cout << "\tEmployees: \n";
     for (const auto &entry : employees) {
-      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+      std::cout << "\t  " << entry.first << " (Room ID: " << entry.second << ")"
                 << std::endl;
     }
 
-    std::cout << "Guests: \n";
+    std::cout << "\tGuests: \n";
     for (const auto &entry : guests) {
-      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+      std::cout << "\t  " << entry.first << " (Room ID: " << entry.second << ")"
                 << std::endl;
     }
 
-    std::cout << "Events: \n";
+    std::cout << "\tEvents: \n";
     for (const auto &event : events) {
       event.printEvent();
     }
+    std::cout << "============================================================="
+                 "======\n";
   }
   // Serialize gallery to string
   std::string serialize() const {
+
+    // this->printGallery();
     std::stringstream ss;
 
     // Serialize employees
@@ -250,6 +262,9 @@ public:
       }
     }
 
+    // gallery.printGallery();
+    std::cout << "Created Gallery with " << gallery.getNumberOfEvents()
+              << " events." << std::endl;
     return gallery;
   }
 
@@ -286,6 +301,24 @@ public:
       std::cout << "Gallery read from " << fullPath << std::endl;
     } else {
       throw std::ios_base::failure("Failed to open file for reading.");
+    }
+  }
+
+  // Function to check if file exists, and load or create a new Gallery
+  static Gallery loadOrCreate(const std::string &filename,
+                              const std::string &key) {
+    std::string fullPath = Gallery::LOG_DIR + filename;
+
+    std::ifstream inFile(fullPath);
+    if (inFile) {
+      // File exists, load the data
+      std::cout << "File exists. Loading data from " << fullPath << std::endl;
+      inFile.close();
+      return loadFromFile(filename, key);
+    } else {
+      // File doesn't exist, create a new Gallery
+      std::cout << "File does not exist. Creating new Gallery." << std::endl;
+      return Gallery(); // Create a new Gallery instance
     }
   }
 };
