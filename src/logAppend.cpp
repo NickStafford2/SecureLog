@@ -117,8 +117,10 @@ void execute(LogAppendArgs args) {
 
   Gallery gallery = Gallery::loadOrCreate(args.logFile, args.token);
 
+  std::cout << "Before Move" << std::endl;
   gallery.move(event);
   // gallery.print();
+  std::cout << "After Move" << std::endl;
   gallery.saveToFile(args.logFile, args.token);
   // Load the gallery data back from the file
   // try {

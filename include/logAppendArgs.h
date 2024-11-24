@@ -167,32 +167,33 @@ public:
         const std::string &arg = args[i];
         // std::cout << arg << std::endl;
         if (arg == "-T") {
-          if (i + 1 < args.size()) {
+
+          if (i + 1 < args.size()) { // if next index does not exist
             try {
               this->timestamp = std::stoi(args[++i]);
-              validate_timestamp();
             } catch (const std::exception e) {
               throw std::invalid_argument("timestamp must be a number");
             }
+            validate_timestamp();
           } else {
             throw std::invalid_argument("Missing timestamp value");
           }
         } else if (arg == "-K") {
-          if (i + 1 < args.size()) {
+          if (i + 1 < args.size()) { // if next index does not exist
             this->token = args[++i];
             token_validation();
           } else {
             throw std::invalid_argument("Missing token value");
           }
         } else if (arg == "-E") {
-          if (i + 1 < args.size()) {
+          if (i + 1 < args.size()) { // if next index does not exist
             this->employeeName = args[++i];
             name_validation(employeeName);
           } else {
             throw std::invalid_argument("Missing employee name");
           }
         } else if (arg == "-G") {
-          if (i + 1 < args.size()) {
+          if (i + 1 < args.size()) { // if next index does not exist
             this->guestName = args[++i];
             name_validation(guestName);
           } else {

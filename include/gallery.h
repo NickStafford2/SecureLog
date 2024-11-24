@@ -41,7 +41,7 @@ public:
   int getNumberOfEvents() { return events.size(); }
 
   std::vector<int> getEmployeeRooms(const std::string &guest) const {
-    return guests.at(guest);
+    return employees.at(guest);
   }
 
   std::vector<int> getGuestRooms(const std::string &guest) const {
@@ -68,13 +68,20 @@ public:
   void move(const Event &event) {
     // std::cout << "Moving " << event.person << " from " << event.from_location
     //           << " to " << event.to_location << std::endl;
+    std::cout << mostRecentTimestamp << "- vs -" << event.timestamp
+              << std::endl;
     validateTimestamp(event.timestamp);
 
     int currentRoom = UNKNOWN;
 
     // If the event is for an employee, get their room, else for a guest
     if (event.participantType == ParticipantType::EMPLOYEE) {
+
+      std::cout << "employee" << std::endl;
+
       if (employees.find(event.person) != employees.end()) {
+        std::cout << "employee not exist" << std::endl;
+
         currentRoom = getEmployeeRoom(event.person);
       }
     } else if (event.participantType == ParticipantType::GUEST) {
@@ -82,10 +89,11 @@ public:
         currentRoom = getGuestRoom(event.person);
       }
     }
+    std::cout << "77777777777777777777777" << std::endl;
 
     // If the person is not in the 'from_location' room, throw an error
     if (currentRoom != event.from_location) {
-      std::cerr << currentRoom << " != " << event.from_location << std::endl;
+      // std::cerr << currentRoom << " != " << event.from_location << std::endl;
       throw std::runtime_error("Error: " + event.person +
                                " is not in the from_location: "); // +
       // event.from_location + " " + event.person + " was in " + currentRoom);
