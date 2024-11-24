@@ -1,12 +1,8 @@
 // crypto.cpp
-#include <memory>
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 #include "crypto.h"
 

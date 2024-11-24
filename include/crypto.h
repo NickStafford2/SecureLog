@@ -1,18 +1,9 @@
 // crypto.h
 #ifndef CRYPTO_H
 #define CRYPTO_H
+
 #include <fstream>
 #include <iostream>
-#include <string>
-
-// bool fileExistsAndIsReadable2(const std::string &filename);
-// #endif
-// crypto.h
-// #ifndef CRYPTO_H
-// #define CRYPTO_H
-
-#pragma once
-
 #include <string>
 #include <vector>
 
