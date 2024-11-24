@@ -37,31 +37,23 @@ all: build $(EXECUTABLES)
 
 # Rule for linking the logAppend executable
 $(BIN_DIR)/logAppend: $(OBJ_DIR)/logAppend.o $(SHARED_OBJS)
-	@echo "Linking $@..."
 	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
-	@echo "Successfully created $@"
 
 # Rule for linking the logRead executable
 $(BIN_DIR)/logRead: $(OBJ_DIR)/logRead.o $(SHARED_OBJS)
-	@echo "Linking $@..."
 	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
-	@echo "Successfully created $@"
 
 # Rule for linking the genBatch executable
 $(BIN_DIR)/generateTestData: $(OBJ_DIR)/generateTestData.o
-	@echo "Linking $@..."
 	@$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
-	@echo "Successfully created $@"
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling $<..."
 	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 	@echo "Successfully compiled $<"
 
 # Clean build files
 clean:
-	@echo "Cleaning build files..."
 	@rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 	@echo "Clean complete"
 
