@@ -2,3 +2,7 @@
 -T 1002 -K secret -A -R 3 -G nick nsTest1.txt
 -T 1001 -K secret -L -R 3 -G nick nsTest1.txt
 -T 1002 -K secret -L -G nick nsTest1.txt
+-T 1001 -K secret -A -E dave nsTest1.txt
+-T 1002 -K secret -A -R 3 -E dave nsTest1.txt
+-T 1001 -K secret -L -R 3 -E dave nsTest1.txt
+-T 1002 -K secret -L -E dave nsTest1.txt

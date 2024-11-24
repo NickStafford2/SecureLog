@@ -7,6 +7,7 @@
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -65,8 +66,8 @@ public:
   }
   // Move a person based on an event
   void move(const Event &event) {
-    std::cout << "Moving " << event.person << " from " << event.from_location
-              << " to " << event.to_location << std::endl;
+    // std::cout << "Moving " << event.person << " from " << event.from_location
+    //           << " to " << event.to_location << std::endl;
     validateTimestamp(event.timestamp);
 
     int currentRoom = UNKNOWN;
@@ -107,7 +108,31 @@ public:
     } else if (event.participantType == ParticipantType::GUEST) {
       guests[event.person].push_back(event.to_location);
     }
-    std::cout << "Move Successfull" << std::endl;
+    // std::cout << "Move Successfull" << std::endl;
+  }
+
+  void printEmployee(const std::string &employeeName) const {
+    auto it = employees.find(employeeName);
+    if (it != employees.end()) {
+      std::cout << "Employee: " << it->first
+                << " (Rooms: " << intArrayToString(it->second) << ")"
+                << std::endl;
+    } else {
+      std::cout << "Employee with name '" << employeeName << "' not found."
+                << std::endl;
+    }
+  }
+
+  void printGuest(const std::string &guestName) const {
+    auto it = guests.find(guestName);
+    if (it != guests.end()) {
+      std::cout << "Guest: " << it->first
+                << " (Rooms: " << intArrayToString(it->second) << ")"
+                << std::endl;
+    } else {
+      std::cout << "Guest with name '" << guestName << "' not found."
+                << std::endl;
+    }
   }
 
   void printEmployees() const {
@@ -144,6 +169,61 @@ public:
     printEvents();
     std::cout << "============================================================="
                  "======\n";
+  }
+
+  void printStateSimple() const {
+
+    // Print Employees List
+    std::cout << "Employees: ";
+    bool first = true;
+    for (const auto &entry : employees) {
+      if (!first)
+        std::cout << ", ";
+      std::cout << entry.first;
+      first = false;
+    }
+    std::cout << "\n";
+
+    // Print Guests List
+    std::cout << "Guests: ";
+    first = true;
+    for (const auto &entry : guests) {
+      if (!first)
+        std::cout << ", ";
+      std::cout << entry.first;
+      first = false;
+    }
+    std::cout << "\n";
+
+    // Create a map to store people in each room
+    std::unordered_map<int, std::set<std::string>> roomOccupants;
+
+    // Add employees to the roomOccupants map
+    for (const auto &entry : employees) {
+      for (int room : entry.second) {
+        roomOccupants[room].insert(entry.first);
+      }
+    }
+
+    // Add guests to the roomOccupants map
+    for (const auto &entry : guests) {
+      for (int room : entry.second) {
+        roomOccupants[room].insert(entry.first);
+      }
+    }
+
+    // Print room-by-room information
+    for (const auto &room : roomOccupants) {
+      std::cout << room.first << ": ";
+      bool firstPerson = true;
+      for (const auto &person : room.second) {
+        if (!firstPerson)
+          std::cout << ", ";
+        std::cout << person;
+        firstPerson = false;
+      }
+      std::cout << "\n";
+    }
   }
 
   // Serialize a vector of rooms into a comma-separated string
@@ -242,8 +322,8 @@ public:
       }
     }
 
-    std::cout << "Created Gallery with " << gallery.getNumberOfEvents()
-              << " events." << std::endl;
+    // std::cout << "Created Gallery with " << gallery.getNumberOfEvents()
+    //           << " events." << std::endl;
     return gallery;
   }
 
@@ -251,14 +331,14 @@ public:
   void saveToFile(const std::string &filename, const std::string &key) const {
 
     std::string fullPath = Gallery::LOG_DIR + filename;
-    std::cout << "Gallery data saving to " << fullPath << std::endl;
+    // std::cout << "Gallery data saving to " << fullPath << std::endl;
     std::ofstream outFile(fullPath);
     if (outFile) {
       std::string message = serialize();
       std::string encrypted = CryptoUtils::encrypt(message, key);
       outFile << encrypted;
       outFile.close();
-      std::cout << "Gallery data saved to " << fullPath << std::endl;
+      // std::cout << "Gallery data saved to " << fullPath << std::endl;
     } else {
       throw std::ios_base::failure("Failed to open file for writing.");
     }
@@ -268,7 +348,7 @@ public:
   static Gallery loadFromFile(const std::string &filename,
                               const std::string &key) {
     std::string fullPath = Gallery::LOG_DIR + filename;
-    std::cout << "Gallery data reading from " << fullPath << std::endl;
+    // std::cout << "Gallery data reading from " << fullPath << std::endl;
     std::ifstream inFile(fullPath);
     if (inFile) {
       std::stringstream buffer;
@@ -277,7 +357,7 @@ public:
       std::string encrypted = buffer.str();
       std::string decrypted = CryptoUtils::decrypt(encrypted, key);
       return deserialize(decrypted);
-      std::cout << "Gallery read from " << fullPath << std::endl;
+      // std::cout << "Gallery read from " << fullPath << std::endl;
     } else {
       throw std::ios_base::failure("Failed to open file for reading.");
     }
@@ -291,12 +371,13 @@ public:
     std::ifstream inFile(fullPath);
     if (inFile) {
       // File exists, load the data
-      std::cout << "File exists. Loading data from " << fullPath << std::endl;
+      // std::cout << "File exists. Loading data from " << fullPath <<
+      // std::endl;
       inFile.close();
       return loadFromFile(filename, key);
     } else {
       // File doesn't exist, create a new Gallery
-      std::cout << "File does not exist. Creating new Gallery." << std::endl;
+      // std::cout << "File does not exist. Creating new Gallery." << std::endl;
       return Gallery(); // Create a new Gallery instance
     }
   }

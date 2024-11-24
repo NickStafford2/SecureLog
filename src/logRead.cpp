@@ -171,27 +171,27 @@
 // }
 
 int main(int argc, char *argv[]) {
-  std::cout << "\n\n LogRead.cpp" << std::endl;
+  // std::cout << "\n\n LogRead.cpp" << std::endl;
   try {
     // LogReadArgs
     LogReadArgs args(argc, argv);
-    std::cout << "First round of validation complete" << std::endl;
-    args.print();
+    // std::cout << "First round of validation complete" << std::endl;
+    // args.print();
     try {
       Gallery loadedGallery = Gallery::loadFromFile(args.logFile, args.token);
-      std::cout << "Successfully loaded gallary data with "
-                << loadedGallery.getNumberOfEvents() << " events." << std::endl;
-      loadedGallery.print();
-      if (args.isGetTime) {
+      // std::cout << "Successfully loaded gallary data with "
+      //           << loadedGallery.getNumberOfEvents() << " events." <<
+      //           std::endl;
+      // loadedGallery.print();
+      if (args.isPrintState) {
+        loadedGallery.printStateSimple();
+      } else if (args.isGetTime) {
         loadedGallery.printTimeFor(args.name, args.participantType);
       } else if (args.isRoomPrint) {
         if (args.participantType == ParticipantType::EMPLOYEE) {
-          std::cout << intArrayToString(
-                           loadedGallery.getEmployeeRooms(args.name))
-                    << std::endl;
+          loadedGallery.printEmployee(args.name);
         } else if (args.participantType == ParticipantType::GUEST) {
-          std::cout << intArrayToString(loadedGallery.getGuestRooms(args.name))
-                    << std::endl;
+          loadedGallery.printGuest(args.name);
         }
       }
 

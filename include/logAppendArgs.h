@@ -122,8 +122,8 @@ public:
 
   LogAppendArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreating LogAppendArgs from: " << argc << " arguments"
-              << std::endl;
+    // std::cout << "\nCreating LogAppendArgs from: " << argc << " arguments"
+    //           << std::endl;
     // Print all arguments in argv
     // std::cout << "Arguments:" << std::endl;
     // for (int i = 0; i < argc; ++i) {
@@ -221,7 +221,7 @@ public:
       this->validateNonBatch();
     }
 
-    std::cout << "Successfully Created LogAppendArgs" << std::endl;
+    // std::cout << "Successfully Created LogAppendArgs" << std::endl;
     // this->print();
   }
 
