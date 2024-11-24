@@ -1,3 +1,4 @@
+// gallery.h
 #pragma once
 
 #include <fstream>
@@ -15,13 +16,14 @@
 #include "crypto.h"
 #include "event.h"
 #include "participantType.h"
+#include "utils.h"
 
 class Gallery {
 private:
   // Employees and Guests as key-value pairs where the key is the name and the
-  // value is the room ID
-  std::unordered_map<std::string, int> employees;
-  std::unordered_map<std::string, int> guests;
+  // value is a list of rooms the person has gone to
+  std::unordered_map<std::string, std::vector<int>> employees;
+  std::unordered_map<std::string, std::vector<int>> guests;
   std::vector<Event> events;
 
   int mostRecentTimestamp = 0; // To keep track of the most recent timestamp
@@ -32,22 +34,26 @@ public:
   static const int ERROR = -3;
   static const std::string LOG_DIR;
   Gallery() = default;
-
-  int getEmployeeRoom(const std::string &employee) const {
-    if (employees.find(employee) != employees.end()) {
-      return employees.at(employee);
-    }
-    return UNKNOWN;
-  }
+  static std::string readifyLocation(int location);
 
   int getNumberOfEvents() { return events.size(); }
 
-  int getGuestRoom(const std::string &guest) const {
-    if (guests.find(guest) != guests.end()) {
-      return guests.at(guest);
-    }
-    return UNKNOWN;
+  std::vector<int> getEmployeeRooms(const std::string &guest) const {
+    return guests.at(guest);
   }
+
+  std::vector<int> getGuestRooms(const std::string &guest) const {
+    return guests.at(guest);
+  }
+
+  int getEmployeeRoom(const std::string &employee) const {
+    return getEmployeeRooms(employee).back();
+  }
+
+  int getGuestRoom(const std::string &guest) const {
+    return getGuestRooms(guest).back();
+  }
+
   // Validate timestamp to be larger than the most recent one
   void validateTimestamp(int timestamp) {
     if (timestamp <= mostRecentTimestamp) {
@@ -66,9 +72,13 @@ public:
 
     // If the event is for an employee, get their room, else for a guest
     if (event.participantType == ParticipantType::EMPLOYEE) {
-      currentRoom = getEmployeeRoom(event.person);
+      if (employees.find(event.person) != employees.end()) {
+        currentRoom = getEmployeeRoom(event.person);
+      }
     } else if (event.participantType == ParticipantType::GUEST) {
-      currentRoom = getGuestRoom(event.person);
+      if (guests.find(event.person) != guests.end()) {
+        currentRoom = getGuestRoom(event.person);
+      }
     }
 
     // If the person is not in the 'from_location' room, throw an error
@@ -92,32 +102,31 @@ public:
 
     // Change the person's room ID to the new room
     if (event.participantType == ParticipantType::EMPLOYEE) {
-      employees[event.person] = event.to_location;
+      employees[event.person].push_back(event.to_location);
     } else if (event.participantType == ParticipantType::GUEST) {
-      guests[event.person] = event.to_location;
+      guests[event.person].push_back(event.to_location);
     }
     std::cout << "Move Successfull" << std::endl;
   }
 
-  // Print the employees list
   void printEmployees() const {
     std::cout << "Employees: \n";
     for (const auto &entry : employees) {
-      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+      std::cout << "  " << entry.first
+                << " (Rooms: " << intArrayToString(entry.second) << ")"
                 << std::endl;
     }
   }
 
-  // Print the guests list
   void printGuests() const {
     std::cout << "Guests: \n";
     for (const auto &entry : guests) {
-      std::cout << "  " << entry.first << " (Room ID: " << entry.second << ")"
+      std::cout << "  " << entry.first
+                << " (Rooms: " << intArrayToString(entry.second) << ")"
                 << std::endl;
     }
   }
 
-  // Print all events
   void printEvents() const {
     std::cout << "Events: \n";
     for (const auto &event : events) {
@@ -129,41 +138,53 @@ public:
   void print() const {
     std::cout << "Printing Gallary: "
                  "=================================================\n";
-    std::cout << "\tEmployees: \n";
-    for (const auto &entry : employees) {
-      std::cout << "\t  " << entry.first << " (Room ID: " << entry.second << ")"
-                << std::endl;
-    }
-
-    std::cout << "\tGuests: \n";
-    for (const auto &entry : guests) {
-      std::cout << "\t  " << entry.first << " (Room ID: " << entry.second << ")"
-                << std::endl;
-    }
-
-    std::cout << "\tEvents: \n";
-    for (const auto &event : events) {
-      event.printEvent();
-    }
+    printEmployees();
+    printGuests();
+    printEvents();
     std::cout << "============================================================="
                  "======\n";
   }
-  // Serialize gallery to string
-  std::string serialize() const {
 
-    // this->print();
+  // Serialize a vector of rooms into a comma-separated string
+  static std::string serializeRooms(const std::vector<int> &rooms) {
+    std::stringstream ss;
+    for (size_t i = 0; i < rooms.size(); ++i) {
+      ss << rooms[i];
+      if (i != rooms.size() - 1) {
+        ss << ",";
+      }
+    }
+    return ss.str();
+  }
+
+  // Deserialize a comma-separated string into a vector of rooms
+  static std::vector<int> deserializeRooms(const std::string &roomsStr) {
+    std::vector<int> roomNumbers;
+    std::stringstream roomStream(roomsStr);
+    std::string room;
+    while (std::getline(roomStream, room, ',')) {
+      roomNumbers.push_back(std::stoi(room)); // Convert each room to int
+    }
+    return roomNumbers;
+  }
+
+  std::string serialize() const {
     std::stringstream ss;
 
     // Serialize employees
     ss << "Employees:\n";
     for (const auto &entry : employees) {
-      ss << entry.first << "," << entry.second << "\n";
+      ss << entry.first << ":";
+      ss << serializeRooms(entry.second)
+         << "\n"; // Use the helper function to serialize rooms
     }
 
     // Serialize guests
     ss << "Guests:\n";
     for (const auto &entry : guests) {
-      ss << entry.first << "," << entry.second << "\n";
+      ss << entry.first << ":";
+      ss << serializeRooms(entry.second)
+         << "\n"; // Use the helper function to serialize rooms
     }
 
     // Serialize events
@@ -188,11 +209,13 @@ public:
 
       std::stringstream empStream(line);
       std::string name;
-      int room;
+      std::string roomsStr;
 
-      std::getline(empStream, name, ',');
-      empStream >> room;
-      gallery.employees[name] = room;
+      std::getline(empStream, name, ':');
+      std::getline(empStream, roomsStr);
+
+      std::vector<int> roomNumbers = deserializeRooms(roomsStr);
+      gallery.employees[name] = roomNumbers;
     }
 
     // Read guests
@@ -202,11 +225,13 @@ public:
 
       std::stringstream guestStream(line);
       std::string name;
-      int room;
+      std::string roomsStr;
 
-      std::getline(guestStream, name, ',');
-      guestStream >> room;
-      gallery.guests[name] = room;
+      std::getline(guestStream, name, ':');
+      std::getline(guestStream, roomsStr);
+
+      std::vector<int> roomNumbers = deserializeRooms(roomsStr);
+      gallery.guests[name] = roomNumbers;
     }
 
     // Read events
@@ -216,7 +241,6 @@ public:
       }
     }
 
-    // gallery.print();
     std::cout << "Created Gallery with " << gallery.getNumberOfEvents()
               << " events." << std::endl;
     return gallery;

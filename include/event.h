@@ -1,3 +1,6 @@
+// event.h
+#pragma once
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -18,14 +21,7 @@ public:
       : timestamp(ts), person(p), from_location(from), to_location(to),
         participantType(type) {}
 
-  void printEvent(std::string s = "\t  ") const {
-    std::cout << s << "Timestamp: " << timestamp << ", Person: \"" << person
-              << "\", From Location: " << from_location
-              << ", To Location: " << to_location << ", Type: "
-              << (participantType == ParticipantType::EMPLOYEE ? "Employee"
-                                                               : "Guest")
-              << std::endl;
-  }
+  void printEvent(std::string s = "\t  ") const;
 
   std::string serialize() const {
     std::stringstream ss;
