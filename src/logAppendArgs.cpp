@@ -1,4 +1,4 @@
-// inputValidationLogAppend.cpp
+// logAppendArgs.cpp
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "inputValidationLogAppend.h"
+#include "logAppendArgs.h"
 // #include "participantType.h"
 
 void LogAppendArgs::printHelp() const {

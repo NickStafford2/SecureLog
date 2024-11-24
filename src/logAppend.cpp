@@ -11,7 +11,7 @@
 
 #include "gallery.h"
 #include "inputValidation.h"
-#include "inputValidationLogAppend.h"
+#include "logAppendArgs.h"
 
 // Tokenizer function to split the string into individual arguments
 std::vector<std::string> tokenize(const std::string &line) {
