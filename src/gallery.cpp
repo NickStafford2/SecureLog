@@ -7,5 +7,14 @@
 const std::string Gallery::LOG_DIR = "logs/";
 
 std::string Gallery::readifyLocation(int location) {
-  return std::to_string(location);
+  switch (location) {
+  case Gallery::UNKNOWN:
+    return "Unknown";
+  case Gallery::GALLERY_ID:
+    return "Gallery";
+  case Gallery::ERROR:
+    return "Error";
+  default:
+    return std::to_string(location);
+  }
 }

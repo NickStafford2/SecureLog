@@ -1,3 +1,4 @@
+// participantType.h
 #pragma once
 
 #include <string>
