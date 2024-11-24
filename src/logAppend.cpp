@@ -118,6 +118,7 @@ void execute(LogAppendArgs args) {
   Gallery gallery = Gallery::loadOrCreate(args.logFile, args.token);
 
   gallery.move(event);
+  gallery.print();
   gallery.saveToFile(args.logFile, args.token);
   // Load the gallery data back from the file
   // try {
@@ -125,16 +126,17 @@ void execute(LogAppendArgs args) {
   //   std::cout << "Successfully loaded gallary data with "
   //             << loadedGallery.getNumberOfEvents() << " events." <<
   //             std::endl;
-  //   // loadedGallery.printGallery();
+  //   // loadedGallery.print();
   // } catch (const std::exception &e) {
   //   std::cerr << "Error: " << e.what() << std::endl;
   // }
 }
 
 int main(int argc, char *argv[]) {
+  std::cout << "\n\n LogRead.cpp" << std::endl;
   try {
     LogAppendArgs args(argc, argv);
-    std::cout << "First round of validation complete" << std::endl;
+    // std::cout << "First round of validation complete" << std::endl;
     // args.print();
 
     std::vector<LogAppendArgs> toExecute = {};

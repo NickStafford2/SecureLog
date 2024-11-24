@@ -91,7 +91,8 @@ public:
 
   LogReadArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreating LogReadArgs from: " << argc << " arguments"<< std::endl;
+    std::cout << "\nCreating LogReadArgs from: " << argc << " arguments"
+              << std::endl;
     // Print all arguments in argv
     std::cout << "Arguments:" << std::endl;
     for (int i = 0; i < argc; ++i) {
@@ -142,6 +143,14 @@ public:
       } else {
         throw std::invalid_argument("Unknown argument: " + arg);
       }
+    }
+
+    if (guestName.empty()) {
+      this->participantType = ParticipantType::EMPLOYEE;
+      this->name = employeeName;
+    } else {
+      this->participantType = ParticipantType::GUEST;
+      this->name = guestName;
     }
 
     std::cout << "Successfully Created LogReadArgs" << std::endl;

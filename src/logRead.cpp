@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "inputValidationLogRead.h"
+#include "state.h"
 
 // check all the options like -K -S -R -E -G
 void check_command(int argc,
@@ -166,20 +167,20 @@ void processBigArgument(const std::string &filename, const std::string &key,
 }
 
 int main(int argc, char *argv[]) {
+  std::cout << "\n\n LogRead.cpp" << std::endl;
   try {
     // LogReadArgs
     LogReadArgs args(argc, argv);
     std::cout << "First round of validation complete" << std::endl;
     args.print();
-    // try {
-    //   Gallery loadedGallery = Gallery::loadFromFile(args.logFile,
-    //   args.token); std::cout << "Successfully loaded gallary data with "
-    //             << loadedGallery.getNumberOfEvents() << " events." <<
-    //             std::endl;
-    //   // loadedGallery.printGallery();
-    // } catch (const std::exception &e) {
-    //   std::cerr << "Error: " << e.what() << std::endl;
-    // }
+    try {
+      Gallery loadedGallery = Gallery::loadFromFile(args.logFile, args.token);
+      std::cout << "Successfully loaded gallary data with "
+                << loadedGallery.getNumberOfEvents() << " events." << std::endl;
+      loadedGallery.print();
+    } catch (const std::exception &e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+    }
 
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;

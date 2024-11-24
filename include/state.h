@@ -28,12 +28,14 @@ public:
   // Constructor to initialize the event
   Event(int ts, const std::string &p, int from, int to, ParticipantType type)
       : timestamp(ts), person(p), from_location(from), to_location(to),
-        participantType(type) {}
+        participantType(type) {
+    std::cout << "EVENT CREATED WITH PERSON: " << person << std::endl;
+  }
 
   // Method to print the event details
   void printEvent(std::string s = "\t  ") const {
-    std::cout << s << "Timestamp: " << timestamp << ", Person: " << person
-              << ", From Location: " << from_location
+    std::cout << s << "Timestamp: " << timestamp << ", Person: \"" << person
+              << "\", From Location: " << from_location
               << ", To Location: " << to_location << ", Type: "
               << (participantType == ParticipantType::EMPLOYEE ? "Employee"
                                                                : "Guest")
@@ -54,10 +56,20 @@ public:
     std::string person;
     char comma;
 
-    ss >> ts >> comma >> person >> comma >> from >> comma >> to >> comma >>
-        typeInt;
+    // Read timestamp, expecting an integer followed by a comma
+    ss >> ts >> comma;
 
-    // Create and return the Event object
+    // Read the 'person' field which could contain commas (so we need to read
+    // until the next comma)
+    std::getline(ss, person, ',');
+
+    // Read from_location and to_location (integers)
+    ss >> from >> comma >> to >> comma;
+
+    // Read participant type (integer value)
+    ss >> typeInt;
+
+    // Return a newly constructed Event object using the parsed data
     return Event(ts, person, from, to, static_cast<ParticipantType>(typeInt));
   }
 };
@@ -172,7 +184,7 @@ public:
   }
 
   // Function to print out the gallery's current state
-  void printGallery() const {
+  void print() const {
     std::cout << "Printing Gallary: "
                  "=================================================\n";
     std::cout << "\tEmployees: \n";
@@ -197,7 +209,7 @@ public:
   // Serialize gallery to string
   std::string serialize() const {
 
-    // this->printGallery();
+    // this->print();
     std::stringstream ss;
 
     // Serialize employees
@@ -262,7 +274,7 @@ public:
       }
     }
 
-    // gallery.printGallery();
+    // gallery.print();
     std::cout << "Created Gallery with " << gallery.getNumberOfEvents()
               << " events." << std::endl;
     return gallery;
