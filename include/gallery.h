@@ -14,7 +14,7 @@
 
 #include "crypto.h"
 #include "event.h"
-#include "utils.h"
+#include "participantType.h"
 
 class Gallery {
 private:

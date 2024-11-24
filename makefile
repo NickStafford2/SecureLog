@@ -27,7 +27,7 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Shared object files for both executables
-SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o $(OBJ_DIR)/inputValidationLogRead.o $(OBJ_DIR)/gallery.o $(OBJ_DIR)/event.o
+SHARED_OBJS := $(OBJ_DIR)/crypto.o $(OBJ_DIR)/inputValidation.o $(OBJ_DIR)/inputValidationLogAppend.o $(OBJ_DIR)/inputValidationLogRead.o $(OBJ_DIR)/gallery.o $(OBJ_DIR)/participantType.o $(OBJ_DIR)/event.o
 
 # Specify the executables you want to build
 EXECUTABLES := $(BIN_DIR)/logAppend $(BIN_DIR)/logRead $(BIN_DIR)/generateTestData

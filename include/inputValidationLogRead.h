@@ -11,7 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
+#include "participantType.h"
+
 class LogReadArgs {
 public:
   std::string tokenDetails =

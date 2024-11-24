@@ -2,8 +2,8 @@
 #include <sstream>
 #include <string>
 
-#include "utils.h"
-// Event class to represent each event
+#include "participantType.h"
+
 class Event {
 public:
   int timestamp;

@@ -1,7 +1,7 @@
-// utils.cpp
+// participantType.cpp
 #include <string>
 
-#include "utils.h"
+#include "participantType.h"
 
 std::string participantTypeToString(ParticipantType participantType) {
   switch (participantType) {

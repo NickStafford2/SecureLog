@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
+#include "participantType.h"
 class LogAppendArgs {
 public:
   std::string timestampDetails =

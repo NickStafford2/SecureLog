@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "inputValidationLogAppend.h"
-// #include "utils.h"
+// #include "participantType.h"
 
 void LogAppendArgs::printHelp() const {
   std::cout << "Usage: logappend [OPTIONS] <log>\n\n";
