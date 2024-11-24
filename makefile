@@ -72,7 +72,7 @@ testAppend:
 	./$(BIN_DIR)/logRead -K secret -G nick nsTest1.txt
 
 testRead:
-	./$(BIN_DIR)/logRead -K password -E nick testAppendAuto.txt
+	./$(BIN_DIR)/logRead -K secret -G nick nsTest1.txt
 
 
 

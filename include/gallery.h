@@ -35,6 +35,7 @@ public:
   static const std::string LOG_DIR;
   Gallery() = default;
   static std::string readifyLocation(int location);
+  void printTimeFor(std::string name, ParticipantType participantType);
 
   int getNumberOfEvents() { return events.size(); }
 

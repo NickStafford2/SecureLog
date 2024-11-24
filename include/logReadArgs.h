@@ -60,6 +60,7 @@ public:
       "so far. Output in an integer on a single line. This feature is "
       "optional. If the specified employee or guest does not appear in the "
       "gallery, then nothing is printed.";
+  bool isGetTime = false;
   int time = -1;
 
   std::string IDetails =
@@ -86,19 +87,19 @@ public:
       "underscores and periods).";
   std::string logFile = "";
 
-  ParticipantType
-      participantType; // Whether the event is for an employee or guest
+  // Whether the event is for an employee or guest
+  ParticipantType participantType;
   std::string name = "";
 
   LogReadArgs(int argc, char *argv[]) {
 
-    std::cout << "\nCreating LogReadArgs from: " << argc << " arguments"
-              << std::endl;
-    // Print all arguments in argv
-    std::cout << "Arguments:" << std::endl;
-    for (int i = 0; i < argc; ++i) {
-      std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
-    }
+    // std::cout << "\nCreating LogReadArgs from: " << argc << " arguments"
+    //           << std::endl;
+    // // Print all arguments in argv
+    // std::cout << "Arguments:" << std::endl;
+    // for (int i = 0; i < argc; ++i) {
+    //   std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
+    // }
 
     if (argc < 2) {
       throw std::invalid_argument("Not enough arguments. \n");
@@ -119,6 +120,8 @@ public:
         } else {
           throw std::invalid_argument("Missing token value");
         }
+      } else if (arg == "-T") {
+        this->isGetTime = true;
       } else if (arg == "-R") {
         this->isRoomPrint = true;
       } else if (arg == "-S") {
@@ -154,8 +157,8 @@ public:
       this->name = guestName;
     }
 
-    std::cout << "Successfully Created LogReadArgs" << std::endl;
-    this->print();
+    // std::cout << "Successfully Created LogReadArgs" << std::endl;
+    // this->print();
   }
 
   // Validate that the arguments are consistent
