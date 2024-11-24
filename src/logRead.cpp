@@ -10,8 +10,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "gallery.h"
 #include "inputValidationLogRead.h"
-#include "state.h"
 
 // check all the options like -K -S -R -E -G
 void check_command(int argc,
