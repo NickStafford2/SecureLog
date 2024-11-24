@@ -1,4 +1,4 @@
-// inputValidationLogRead.cpp
+// logReadArgs.cpp
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "inputValidationLogRead.h"
+#include "logReadArgs.h"
 
 void printHelp() {
   std::cout << "Usage: logread [OPTIONS] <log>\n\n";
@@ -82,5 +82,3 @@ void LogReadArgs::print() const {
 
   std::cout << "}" << std::endl;
 }
-
-
