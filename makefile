@@ -65,6 +65,7 @@ build:
 
 ########################################################################
 # Tests to use in presentation
+
 testCorruptedFile:
 	@echo "Testing logAppend on corrupted File"
 	./$(BIN_DIR)/logAppend -T 1001001 -K secret -A -G newPerson corruptedFile.txt
@@ -102,7 +103,6 @@ test:
 
 
 
-# put all tests that are working well in here
 ########################################################################
 
 
@@ -110,10 +110,12 @@ test:
 
 
 testAppend:
+	@echo "Testing Normal logAppend"
 	@rm -rf logs/nsTest1.txt && \
 	./$(BIN_DIR)/logAppend -B nsTestBatch.txt && \ 
 
 testRead:
+	@echo "Testing Normal logRead"
 	./$(BIN_DIR)/logRead -K secret -S nsTest1.txt
 
 testOther:
