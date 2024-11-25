@@ -194,10 +194,13 @@ public:
     s += "\n";
     return s;
   }
+
   void printRoom(int roomId,
                  std::map<int, std::set<std::string>> roomOccupants) const {
     if (roomOccupants.find(roomId) != roomOccupants.end()) {
-      std::cout << "  " << Gallery::readifyLocation(roomId) << ": "
+      std::string locationString = Gallery::readifyLocation(roomId);
+      locationString = padRight(locationString + ": ", 10);
+      std::cout << "  " << locationString
                 << getPeopleInRoom(roomId, roomOccupants);
     }
   }
@@ -240,7 +243,7 @@ public:
       roomOccupants[entry.second.back()].insert(entry.first);
     }
 
-    std::cout << "Rooms:     People:" << std::endl;
+    std::cout << "Rooms:      People:" << std::endl;
     // Print "outside" first
     printRoom(Gallery::UNKNOWN, roomOccupants);
     printRoom(Gallery::GALLERY_ID, roomOccupants);

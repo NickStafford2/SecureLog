@@ -15,3 +15,10 @@ std::string intArrayToString(const std::vector<int> &arr) {
   }
   return oss.str(); // Return the final string
 }
+
+std::string padRight(const std::string &str, size_t totalLength) {
+  if (str.size() >= totalLength) {
+    return str; // No padding needed if the string is already long enough
+  }
+  return str + std::string(totalLength - str.size(), ' ');
+}
