@@ -43,7 +43,6 @@ std::vector<LogAppendArgs> readBatches(LogAppendArgs &args) {
     // Create an array of char* for argv
     std::vector<char *> argv(argc);
 
-    // std::cout << "Creating string from " << (std::string) argv << std::endl;
     for (int i = 0; i < argc; ++i) {
       argv[i] = &tokens[i][0]; // Convert string to char*
     }
@@ -143,8 +142,8 @@ int main(int argc, char *argv[]) {
 
     for (size_t i = 0; i < toExecute.size(); ++i) {
       // std::cout << "Executing command " << i << std::endl;
-      LogAppendArgs command = toExecute[i];
       try {
+        LogAppendArgs command = toExecute[i];
         execute(command);
       } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;

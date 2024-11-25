@@ -11,49 +11,68 @@ bool fileExists(const std::string &fileName) {
   return file.good();
 }
 
+int getRandomNumber(int min, int max) { return rand() % (max - min + 1) + min; }
+
+bool returnFalseXPercent(int x) {
+  // Generate a random number between 1 and 100
+  int randomNumber = rand() % 100 + 1;
+  return randomNumber > x;
+}
+// Random number generator initialized once for performance
+std::random_device rd;  // Obtain a random number from hardware
+std::mt19937 gen(rd()); // Mersenne Twister engine
+std::uniform_int_distribution<> nameDistrib(0, 19); // For names (index 0 to 19)
+std::uniform_int_distribution<> roomDistrib(0, 6);  // For rooms (index 0 to 3)
+
+std::vector<std::string> names = {
+    "Alice",  "Bob",  "Charlie", "David", "Eve",   "Frank", "Grace",
+    "Hannah", "Ivy",  "Jack",    "Kathy", "Louis", "Megan", "Nathan",
+    "Olivia", "Paul", "Quincy",  "Rita",  "Sam",   "Tina"};
+
+// -1 and -2 for gallery and outside
+std::vector<int> rooms = {-2, -1, -1, -1, 1, 2};
+
+std::string getRandomName() { return names[nameDistrib(gen)]; }
+
+std::string getRandomRoom() {
+  int room = rooms[roomDistrib(gen)];
+  // std::cout << room << std::endl;
+  if (room > 0)
+    return " -R " + std::to_string(room);
+  return "";
+}
+std::string getTimestamp(int index) {
+  // if (returnFalseXPercent(5)) {
+  //   int randomSmallNumber = getRandomNumber(-4, index - 1);
+  //   return "-T " + std::to_string(randomSmallNumber); // bad timestamp
+  // }
+  return "-T " + std::to_string(1000 + index); // Ensure increasing timestamps
+}
+
+bool isPersonEmployee(const std::string &name) {
+  char firstLetter = name[0];
+  return (firstLetter < 'K');
+}
+
 std::string generateTestData(int index) {
   std::stringstream ss;
-  std::string timestamp =
-      "-T " + std::to_string(1000 + index); // Ensure increasing timestamps
+  std::string timestamp = getTimestamp(index);
   std::string token = "-K secret"; // Use a constant token for simplicity
-
-  // List of 20 random names
-  std::vector<std::string> names = {
-      "Alice",  "Bob",  "Charlie", "David", "Eve",   "Frank", "Grace",
-      "Hannah", "Ivy",  "Jack",    "Kathy", "Louis", "Megan", "Nathan",
-      "Olivia", "Paul", "Quincy",  "Rita",  "Sam",   "Tina"};
-
-  // Randomly select a name from the list
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, names.size() - 1);
-  std::string name = names[dis(gen)];
-
-  // Choose employee or guest
-  std::string personFlag = (index % 2 == 0) ? "-E" : "-G";
-
-  // Action: either Arrival (A) or Leaving (L)
-  std::string action = (index % 2 == 0) ? "-A" : "-L";
-
-  // Optional room ID: 1 to 10 for guests and employees, or fuzz values
-  std::string room =
-      (index % 5 == 0) ? "" : " -R " + std::to_string((index % 10) + 1);
-
-  // Random log file name
-  std::vector<std::string> logFiles = {"log1", "log2", "log3", "log4", "log5",
-                                       "log6", "log7", "log8", "log9", "log10"};
-  std::string logFile = logFiles[index % logFiles.size()];
+  std::string name = getRandomName();
+  std::string personFlag = (isPersonEmployee(name)) ? "-E" : "-G";
+  std::string action = (index % 2 == 0) ? "-A " : "-L ";
+  std::string room = getRandomRoom();
 
   // For fuzz testing, introduce some "invalid" fields and randomness
-  if (index % 10 ==
-      0) { // 10% invalid data, like missing fields, extra symbols, etc.
-    ss << "-T INVALID_TIMESTAMP -K SECRET -A -E " << name << " logfile";
+  if (returnFalseXPercent(
+          100)) { // 10% invalid data, like missing fields, extra symbols, etc.
+    ss << "-T -33 -K SECRET -A -E " << name << " logfile";
   } else if (index % 15 == 0) { // Introduce completely weird input
     ss << "-X " << (1000 + index) << " -Y secret -Z -A -E " << name
        << " ## random_log";
   } else {
     ss << timestamp << " " << token << " " << personFlag << " " << name << " "
-       << action << room << " " << logFile;
+       << action << room << " " << "biglog.txt";
   }
 
   return ss.str();
@@ -74,7 +93,7 @@ std::string getUniqueBatchFileName() {
 
 int main() {
   // Generate a unique file name
-  std::string fileName = getUniqueBatchFileName();
+  std::string fileName = "batches/bigBatch.txt";
 
   // Open the file for writing
   std::ofstream outputFile(fileName);

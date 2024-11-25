@@ -76,17 +76,38 @@ testAppendBatch:
 	./$(BIN_DIR)/logAppend -B nsTestBatch.txt 
 	@echo "\n"
 
+# Rule for the testData target that runs the genBatch rule
+genBigData: genBatch
+	@rm -rf batches/bigBatch.txt 
+	./$(BIN_DIR)/generateTestData
+	@echo "Test data generation complete."
+
+testAppendBigBatch:
+	@echo "Testing big random data logAppend batch"
+	@rm -rf logs/biglog.txt 
+	./$(BIN_DIR)/logAppend -B bigBatch.txt 
+	@echo "\n"
+	
+testReadBigBatch:
+	@echo "Testing bigBatch logRead"
+	./$(BIN_DIR)/logRead -K secret -S biglog.txt
+
 test:
 	@echo "\n"
 	@$(MAKE) testAppendBatch
 	@$(MAKE) testCorruptedFile
+	@$(MAKE) genBigData 
+	@$(MAKE) testAppendBigBatch
+	@$(MAKE) testReadBigBatch
+
+
 
 # put all tests that are working well in here
 ########################################################################
 
-# Rule for the testData target that runs the genBatch rule
-testData: genBatch
-	@echo "Test data generation complete."
+
+
+
 
 testAppend:
 	@rm -rf logs/nsTest1.txt && \
