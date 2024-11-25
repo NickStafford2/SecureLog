@@ -39,3 +39,23 @@ Logread must have read permissions.
 Employeess and guests are expected to enter the gallery first. Once in the gallery, they may enter various rooms. The person is considered 'in the gallery' from the time they enter until the time they leave. 
 
 # Running the Program
+
+### Things needed to run the program.
+-   Need to install ```clang++```: a C++ compiler to run the C++ code.
+-   Add the ```clang++``` Path to the environment.
+-   Clone the file from the Github:
+-   Executing the code.
+
+### Clonning the file from GitHub
+-   Git clone the repository: ```git clone https://github.com/NickStafford2/SecureLog.git ```
+
+### Executing the file
+-   Open the terminal and go to the location of the file named SecureLog.  
+    ```foo@foo SecureLog % ```
+-   Executing the logAppend file:  
+    -   For single log: ```foo@foo SecureLog % ./bin/logAppend -T <timestamp> -K <secret-key> (-A | -L) (-E <employee-name> | -G <guest-name>) (-R <room-number>) <log>```  
+    -   For batch file: ```foo@foo SecureLog % ./bin/logAppend -B <batch-file>```  
+- Executing the logRead file:  
+    -   ```foo@foo SecureLog % ./bin/logRead -K <secret-key> -S <log>```  
+    -   ```foo@foo SecureLog % ./bin/logRead -K <secret-key> -R (-E <employee-name> | -G <guest-name>) <log>```
+    
