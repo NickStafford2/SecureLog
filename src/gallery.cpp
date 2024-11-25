@@ -16,7 +16,7 @@ std::string Gallery::readifyLocation(int location) {
   case Gallery::ERROR:
     return "Error";
   default:
-    return "room " + std::to_string(location);
+    return "Room " + std::to_string(location);
   }
 }
 

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <openssl/aes.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
@@ -178,7 +179,6 @@ public:
   void printStateSimple() const {
 
     // Print Employees List
-
     std::cout << "Employees: [";
     bool first = true;
     for (const auto &entry : employees) {
@@ -198,10 +198,10 @@ public:
       std::cout << entry.first;
       first = false;
     }
-    std::cout << "]\n\n";
+    std::cout << "]\n";
 
     // Create a map to store people in each room
-    std::unordered_map<int, std::set<std::string>> roomOccupants;
+    std::map<int, std::set<std::string>> roomOccupants;
 
     // Add employees to the roomOccupants map
     for (const auto &entry : employees) {
@@ -217,22 +217,56 @@ public:
       }
     }
 
-    // Print room-by-room information
-
     std::cout << "Rooms:     People:" << std::endl;
-    for (const auto &room : roomOccupants) {
-
-      std::string roomLabel = " " + Gallery::readifyLocation(room.first);
-      std::string padding(10 - roomLabel.size(), ' ');
-      std::cout << roomLabel << ": " << padding;
-      bool firstPerson = true;
-      for (const auto &person : room.second) {
-        if (!firstPerson)
-          std::cout << ", ";
-        std::cout << person;
-        firstPerson = false;
+    // Print "outside" first
+    std::string outsideLabel =
+        "  " + Gallery::readifyLocation(Gallery::UNKNOWN);
+    std::cout << outsideLabel << ": ";
+    bool firstPersonOutside = true;
+    for (const auto &entry : roomOccupants) {
+      if (entry.first == Gallery::UNKNOWN) {
+        for (const auto &person : entry.second) {
+          if (!firstPersonOutside)
+            std::cout << ", ";
+          std::cout << person;
+          firstPersonOutside = false;
+        }
+        std::cout << "\n";
       }
-      std::cout << "\n";
+    }
+
+    // Print "gallery" second
+    std::string galleryLabel =
+        "  " + Gallery::readifyLocation(Gallery::GALLERY_ID);
+    std::cout << galleryLabel << ": ";
+    bool firstPersonGallery = true;
+    for (const auto &entry : roomOccupants) {
+      if (entry.first == Gallery::GALLERY_ID) {
+        for (const auto &person : entry.second) {
+          if (!firstPersonGallery)
+            std::cout << ", ";
+          std::cout << person;
+          firstPersonGallery = false;
+        }
+        std::cout << "\n";
+      }
+    }
+
+    // Now print the rooms numerically (everything greater than GALLERY_ID)
+    for (const auto &room : roomOccupants) {
+      if (room.first != Gallery::UNKNOWN && room.first != Gallery::GALLERY_ID) {
+        std::string roomLabel = "  " + Gallery::readifyLocation(room.first);
+        std::string padding(9 - roomLabel.size(), ' ');
+        std::cout << roomLabel << ": " << padding;
+        bool firstPerson = true;
+        for (const auto &person : room.second) {
+          if (!firstPerson)
+            std::cout << ", ";
+          std::cout << person;
+          firstPerson = false;
+        }
+        std::cout << "\n";
+      }
     }
   }
 
