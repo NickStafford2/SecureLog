@@ -150,8 +150,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: " << e.what() << std::endl;
       }
     }
-    std::cout << "LogAppend Successfull" << std::endl;
-    return 1;
+    std::cout << "LogAppend Complete" << std::endl;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 255;

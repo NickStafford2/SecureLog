@@ -135,7 +135,7 @@ std::string CryptoUtils::decrypt(const std::string &ciphertext,
     return std::string(unpadded_data.begin(), unpadded_data.end());
   } catch (const std::exception &e) {
     // Consider logging the exception message for better debugging
-    return "";
+    throw std::runtime_error("integrity violation");
   }
 }
 

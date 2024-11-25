@@ -1,6 +1,7 @@
 // gallery.h
 #pragma once
 
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -388,9 +389,8 @@ public:
       std::string decrypted = CryptoUtils::decrypt(encrypted, key);
       return deserialize(decrypted);
       // std::cout << "Gallery read from " << fullPath << std::endl;
-    } else {
-      throw std::ios_base::failure("Failed to open file for reading.");
     }
+    throw std::ios_base::failure("Failed to open file");
   }
 
   // Function to check if file exists, and load or create a new Gallery

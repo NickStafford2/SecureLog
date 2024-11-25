@@ -13,6 +13,7 @@ CXXFLAGS += -I/usr/include/c++/11 \
 #
 LDFLAGS := -L/usr/lib/gcc/x86_64-linux-gnu/11 -lcrypto
 INCLUDES := -Iinclude -I/usr/include/openssl
+MAKEFLAGS += --no-print-directory
 
 # Directories
 SRC_DIR := src
@@ -61,6 +62,23 @@ build:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(LOG_DIR)
 	@mkdir -p $(OBJ_DIR)
+
+
+testCorruptedFile:
+	@echo "Testing logAppend on corrupted File"
+	./$(BIN_DIR)/logAppend -T 1001001 -K secret -A -G newPerson corruptedFile.txt
+	@echo "\n"
+	
+testAppendBatch:
+	@echo "Testing normal logAppend batch"
+	@rm -rf logs/nsTest1.txt 
+	./$(BIN_DIR)/logAppend -B nsTestBatch.txt 
+	@echo "\n"
+
+test:
+	@echo "\n"
+	@$(MAKE) testAppendBatch
+	@$(MAKE) testCorruptedFile
 
 # Rule for the testData target that runs the genBatch rule
 testData: genBatch
