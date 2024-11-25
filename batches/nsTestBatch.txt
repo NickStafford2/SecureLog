@@ -6,3 +6,9 @@
 -T 1006 -K secret -A -R 3 -E dave nsTest1.txt
 -T 1007 -K secret -L -R 3 -E dave nsTest1.txt
 -T 1008 -K secret -L -E dave nsTest1.txt
+-T 1009 -K secret -A -E steve nsTest1.txt
+-T 1010 -K secret -A -R 3 -E steve nsTest1.txt
+-T 1011 -K secret -A -E jon nsTest1.txt
+-T 1012 -K secret -A -R 3 -E jon nsTest1.txt
+-T 1013 -K secret -A -E curtis nsTest1.txt
+-T 1014 -K secret -A -R 4 -E curtis nsTest1.txt

@@ -176,7 +176,34 @@ public:
                  "======\n";
   }
 
+  std::string
+  getPeopleInRoom(int roomId,
+                  std::map<int, std::set<std::string>> roomOccupants) const {
+    std::string s = "";
+    bool firstPersonOutside = true;
+    for (const auto &entry : roomOccupants) {
+      if (entry.first == roomId) {
+        for (const auto &person : entry.second) {
+          if (!firstPersonOutside)
+            s += ", ";
+          s += person;
+          firstPersonOutside = false;
+        }
+      }
+    }
+    s += "\n";
+    return s;
+  }
+  void printRoom(int roomId,
+                 std::map<int, std::set<std::string>> roomOccupants) const {
+    if (roomOccupants.find(roomId) != roomOccupants.end()) {
+      std::cout << "  " << Gallery::readifyLocation(roomId) << ": "
+                << getPeopleInRoom(roomId, roomOccupants);
+    }
+  }
+
   void printStateSimple() const {
+    // print();
 
     // Print Employees List
     std::cout << "Employees: [";
@@ -205,67 +232,22 @@ public:
 
     // Add employees to the roomOccupants map
     for (const auto &entry : employees) {
-      for (int room : entry.second) {
-        roomOccupants[room].insert(entry.first);
-      }
+      roomOccupants[entry.second.back()].insert(entry.first);
     }
 
     // Add guests to the roomOccupants map
     for (const auto &entry : guests) {
-      for (int room : entry.second) {
-        roomOccupants[room].insert(entry.first);
-      }
+      roomOccupants[entry.second.back()].insert(entry.first);
     }
 
     std::cout << "Rooms:     People:" << std::endl;
     // Print "outside" first
-    std::string outsideLabel =
-        "  " + Gallery::readifyLocation(Gallery::UNKNOWN);
-    std::cout << outsideLabel << ": ";
-    bool firstPersonOutside = true;
-    for (const auto &entry : roomOccupants) {
-      if (entry.first == Gallery::UNKNOWN) {
-        for (const auto &person : entry.second) {
-          if (!firstPersonOutside)
-            std::cout << ", ";
-          std::cout << person;
-          firstPersonOutside = false;
-        }
-        std::cout << "\n";
-      }
-    }
-
-    // Print "gallery" second
-    std::string galleryLabel =
-        "  " + Gallery::readifyLocation(Gallery::GALLERY_ID);
-    std::cout << galleryLabel << ": ";
-    bool firstPersonGallery = true;
-    for (const auto &entry : roomOccupants) {
-      if (entry.first == Gallery::GALLERY_ID) {
-        for (const auto &person : entry.second) {
-          if (!firstPersonGallery)
-            std::cout << ", ";
-          std::cout << person;
-          firstPersonGallery = false;
-        }
-        std::cout << "\n";
-      }
-    }
-
+    printRoom(Gallery::UNKNOWN, roomOccupants);
+    printRoom(Gallery::GALLERY_ID, roomOccupants);
     // Now print the rooms numerically (everything greater than GALLERY_ID)
     for (const auto &room : roomOccupants) {
       if (room.first != Gallery::UNKNOWN && room.first != Gallery::GALLERY_ID) {
-        std::string roomLabel = "  " + Gallery::readifyLocation(room.first);
-        std::string padding(9 - roomLabel.size(), ' ');
-        std::cout << roomLabel << ": " << padding;
-        bool firstPerson = true;
-        for (const auto &person : room.second) {
-          if (!firstPerson)
-            std::cout << ", ";
-          std::cout << person;
-          firstPerson = false;
-        }
-        std::cout << "\n";
+        printRoom(room.first, roomOccupants);
       }
     }
   }
