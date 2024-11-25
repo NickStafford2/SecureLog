@@ -10,13 +10,13 @@ const std::string Gallery::LOG_DIR = "logs/";
 std::string Gallery::readifyLocation(int location) {
   switch (location) {
   case Gallery::UNKNOWN:
-    return "Unknown";
+    return "Outside";
   case Gallery::GALLERY_ID:
     return "Gallery";
   case Gallery::ERROR:
     return "Error";
   default:
-    return std::to_string(location);
+    return "room " + std::to_string(location);
   }
 }
 
