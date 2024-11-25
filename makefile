@@ -63,7 +63,8 @@ build:
 	@mkdir -p $(LOG_DIR)
 	@mkdir -p $(OBJ_DIR)
 
-
+########################################################################
+# Tests to use in presentation
 testCorruptedFile:
 	@echo "Testing logAppend on corrupted File"
 	./$(BIN_DIR)/logAppend -T 1001001 -K secret -A -G newPerson corruptedFile.txt
@@ -79,6 +80,9 @@ test:
 	@echo "\n"
 	@$(MAKE) testAppendBatch
 	@$(MAKE) testCorruptedFile
+
+# put all tests that are working well in here
+########################################################################
 
 # Rule for the testData target that runs the genBatch rule
 testData: genBatch
