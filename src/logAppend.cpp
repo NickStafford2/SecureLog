@@ -122,16 +122,6 @@ void execute(LogAppendArgs args) {
   // gallery.print();
   // std::cout << "After Move" << std::endl;
   gallery.saveToFile(args.logFile, args.token);
-  // Load the gallery data back from the file
-  // try {
-  //   Gallery loadedGallery = Gallery::loadFromFile(args.logFile, args.token);
-  //   std::cout << "Successfully loaded gallary data with "
-  //             << loadedGallery.getNumberOfEvents() << " events." <<
-  //             std::endl;
-  //   // loadedGallery.print();
-  // } catch (const std::exception &e) {
-  //   std::cerr << "Error: " << e.what() << std::endl;
-  // }
 }
 
 int main(int argc, char *argv[]) {
