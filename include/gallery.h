@@ -222,7 +222,7 @@ public:
     std::cout << "Rooms:     People:" << std::endl;
     for (const auto &room : roomOccupants) {
 
-      std::string roomLabel = Gallery::readifyLocation(room.first);
+      std::string roomLabel = " " + Gallery::readifyLocation(room.first);
       std::string padding(10 - roomLabel.size(), ' ');
       std::cout << roomLabel << ": " << padding;
       bool firstPerson = true;
