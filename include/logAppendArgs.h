@@ -254,8 +254,6 @@ public:
       file_validation();
     }
 
-    // std::cout << "sssss" << guestName << std::endl;
-    // std::cout << "iiiii" << employeeName << std::endl;
     if (guestName.empty()) {
       this->participantType = ParticipantType::EMPLOYEE;
       this->name = employeeName;
@@ -263,7 +261,6 @@ public:
       this->participantType = ParticipantType::GUEST;
       this->name = guestName;
     }
-    // std::cout << "kkkk" << name << std::endl;
   }
 
   // file_validation validates the name of the file

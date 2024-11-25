@@ -69,6 +69,7 @@ public:
           "Timestamp must be larger than the most recent timestamp.");
     }
   }
+
   // Move a person based on an event
   void move(const Event &event) {
     // std::cout << "Moving " << event.person << " from " << event.from_location
