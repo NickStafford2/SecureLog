@@ -58,4 +58,5 @@ Employeess and guests are expected to enter the gallery first. Once in the galle
 - Executing the logRead file:  
     -   ```foo@foo SecureLog % ./bin/logRead -K <secret-key> -S <log>```  
     -   ```foo@foo SecureLog % ./bin/logRead -K <secret-key> -R (-E <employee-name> | -G <guest-name>) <log>```
-    
+- You can use ```make``` for compiling the codes to get the executables/object files for running the program
+- Use some tests like ```make testRead```, ```make testReadBigBatch``` to execute tests. Read makefile for more information!
